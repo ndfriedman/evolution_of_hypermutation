@@ -1,0 +1,17 @@
+#file types
+*.ipynb_checkpoints
+*.DS_Store
+*.Rhistory
+*.pyc
+*checkpoint.ipynb
+*.Rapp.history
+
+#directories
+scripts/uncategorizedScripts/*
+/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/figurePdfs/*
+/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/figurePdfs/*
+/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure3/FIGURE3_PLOTTING_FILES/figurePdfs/*
+/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/figurePdfs/*
+/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/figurePdfs/*
+/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure3/FIGURE3_PLOTTING_FILES/figurePdfs/*
+
