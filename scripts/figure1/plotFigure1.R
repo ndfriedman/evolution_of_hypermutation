@@ -22,7 +22,8 @@ emptyTheme <- theme(axis.line = element_blank(),
                     panel.background = element_blank())
 
 #adjust this as needed
-plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/'
+plottingDataPath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/plotDataFiles/'
+plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/figurePdfs/'
 
 #
 ###
@@ -49,7 +50,7 @@ plot_figure_1a <- function(df){
   return(p)
 }
 
-figure1aDataFrame <- read.table(paste(plottingFilePath, 'figure_1a.tsv', sep=''), sep='\t', header=TRUE)
+figure1aDataFrame <- read.table(paste(plottingDataPath, 'figure_1a.tsv', sep=''), sep='\t', header=TRUE)
 p <- plot_figure_1a(figure1aDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1a.pdf')
 ggsave(saveFilePath, plot=p,  width = 6, height = 4)
@@ -75,7 +76,7 @@ plot_figure_1b <- function(df){
   return(p)
 }
 
-figure1bDataFrame <- read.table(paste(plottingFilePath, 'figure_1b.tsv', sep=''), sep='\t', header=TRUE)
+figure1bDataFrame <- read.table(paste(plottingDataPath, 'figure_1b.tsv', sep=''), sep='\t', header=TRUE)
 p <- plot_figure_1b(figure1bDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1b.pdf')
 ggsave(saveFilePath,
@@ -116,7 +117,7 @@ plot_figure_1c <- function(df){
   return(plt)
 }
 
-figure1cDataFrame <- read.table(paste(plottingFilePath, 'figure_1c.tsv', sep=''), sep='\t', header=TRUE)
+figure1cDataFrame <- read.table(paste(plottingDataPath, 'figure_1c.tsv', sep=''), sep='\t', header=TRUE)
 plt <- plot_figure_1c(figure1cDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1c.pdf')
 ggsave(saveFilePath,
@@ -155,7 +156,7 @@ plot_figure_1d <- function(df){
   return(p)
 }
 
-figure1dDataFrame <- read.table(paste(plottingFilePath, 'figure_1d.tsv', sep=''), sep = '\t', header=TRUE)
+figure1dDataFrame <- read.table(paste(plottingDataPath, 'figure_1d.tsv', sep=''), sep = '\t', header=TRUE)
 p <- plot_figure_1d(figure1dDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1d.pdf')
 ggsave(saveFilePath,
@@ -216,7 +217,7 @@ plot_figure_1e_msi_only <- function(df){
 }
 
 #plot figure 1e
-figure1eDataFrame <- read.table(paste(plottingFilePath, 'figure_1e.tsv', sep=''), sep = '\t', header=TRUE)
+figure1eDataFrame <- read.table(paste(plottingDataPath, 'figure_1e.tsv', sep=''), sep = '\t', header=TRUE)
 p <- plot_figure_1e(figure1eDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1e.pdf')
 ggsave(saveFilePath,
