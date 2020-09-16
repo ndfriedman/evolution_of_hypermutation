@@ -101,29 +101,12 @@ TABLE_1_IMPACT_DATA_SUMMARY
 
 ##FIGURE 1
 
-SCRIPT_GENERATE_PLOT_FIGURE_1bc	scripts/figure1/generate_cancer_types_and_sigs_figure#generatePlotsFigure1b_c	generates figure 1b and figure1c
-
-SCRIPT_GENERATE_PLOT_FIGURE_1d	scripts/figure1/generate_n_oncogenic_by_hyper_not_hyper_#figure1d#	generates figure 1d
-
-SCRIPT_GENERATE_PLOT_FIGURE_1e	scripts/figure1/generate_observed_vs_expected_figure_1e.ipynb		generates figure 1e
-
-SCRIPT_GENERATE_PLOT_FIGURE_1f	scripts/figure1/generate_observed_vs_expected_figure_1f.ipynb		generates figure 1f
-
-SCRIPT_PLOT_FIGURE1	scripts/figure1/FIGURE1_PLOTTING_FILES/plotFigure1.R	generates all figure 1 stuff
-
-SCRIPT_PLOT_FIGURE1_SUPPLEMENTAL	scripts/figure1/FIGURE1_PLOTTING_FILES/plotFigure1.R	generates all figure 1 stuff
 
 ##FIGURE 2
 
-SCRIPT_GENERATE_PLOT_FIGURE_2ac	scripts/figure2/make_dnds_figures_2a_2c.ipynb
-
-SCRIPT_GENERATE_PLOT_FIGURE_2d	scripts/figure2/make_gene_mutation_comp_figure_2d.ipynb
 
 ##FIGURE 3
 
-SCRIPT_GENERATE_PLOT_FIGURE_3e	scripts/figure3/make_gene_mutation_comp_figure_3e.ipynb
-
-##FIGURE 4
 
 
 
