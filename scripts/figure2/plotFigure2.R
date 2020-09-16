@@ -1,6 +1,5 @@
 #written by Noah Friedman
 
-plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/'
 library(ggplot2)
 library(grid)
 require(cowplot)
@@ -11,6 +10,10 @@ library(data.table); setDTthreads(6)
 library(stringr)
 library(ggrepel)
 
+#adjust this as needed
+plottingDataPath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/plotDataFiles/'
+plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/figurePdfs/'
+
 emptyTheme <- theme(axis.line = element_blank(),
                     #axis.text.x = element_blank(),
                     axis.ticks = element_blank(),
@@ -19,20 +22,23 @@ emptyTheme <- theme(axis.line = element_blank(),
                     panel.border = element_blank(),
                     panel.background = element_blank())
 
+plot_figure_2a <- function(df){
+  p <- ggplot(df, aes(x=burdenType, fill=mutType, y=frac))+
+    geom_bar(stat = "identity", position="fill")+
+    xlab('mutation burden')+
+    ylab('fraction of drivers')+
+    theme(axis.text.x = element_text(angle=90))+
+    scale_fill_viridis_d()+
+    scale_x_discrete(limits = rev(levels(df$burdenType)))+
+    xlab('tumor type')+
+    emptyTheme
+  return(p)
+}
 
-df <- read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/figure2aGeneTypes.tsv', sep='\t', header=TRUE)
-
-p <- ggplot(df, aes(x=burdenType, fill=mutType, y=frac))+
-  geom_bar(stat = "identity", position="fill")+
-  xlab('mutation burden')+
-  ylab('fraction of drivers')+
-  theme(axis.text.x = element_text(angle=90))+
-  scale_fill_viridis_d()+
-  scale_x_discrete(limits = rev(levels(df$burdenType)))+
-  xlab('tumor type')+
-  emptyTheme
-
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 3, height = 4, units = c("in"))
+figure2aDataFrame <- read.table(paste(plottingDataPath, 'figure_2a.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_2a(figure2aDataFrame)
+saveFilePath = paste(plottingFilePath, 'figure2a.pdf')
+ggsave(saveFilePath, plot=p,  width = 3, height = 4)
 
 #
 ######
@@ -57,22 +63,10 @@ plot_figure_2b <- function(df){
   return(p)
 }
 
-df <- read.table('~/Desktop/WORK/dataForLocalPlotting/relatedUnrelated.tsv', sep='\t', header=TRUE)
-
-p <- plot_figure_2b(df)
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 4, units = c("in"))
-
-p <- ggplot()+
-  geom_smooth(data = df[df$cancerTypeAdj == 'Glioma',], aes(x=TMB, y=fracDriverRelated, colour='Related genes: Glioma'), method='loess', span=1)+
-  geom_smooth(data = df[df$cancerTypeAdj == 'Glioma',], aes(x=TMB, y=fracDriverUnrelated, colour='Unrelated genes: Glioma'), method='loess', span=1)+
-  geom_smooth(data = df[df$cancerTypeAdj == 'Other',], aes(x=TMB, y=fracDriverRelated, colour='Related genes: Other'), method='loess', span=1)+
-  geom_smooth(data = df[df$cancerTypeAdj == 'Other',], aes(x=TMB, y=fracDriverUnrelated, colour='Unrelated genes: Other'), method='loess', span=1)+
-  scale_color_manual(values=c('Purple', '#b19cd9', '#fed8b1', 'Orange'))+
-  ylab('N putative drivers/N all mutations')+
-  emptyTheme+
-  ylim(0,1)
-
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 4, units = c("in"))
+figure2bDataFrame <- read.table(paste(plottingDataPath, 'figure_2b.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_2b(figure2bDataFrame)
+saveFilePath = paste(plottingFilePath, 'figure2b.pdf')
+ggsave(saveFilePath, plot=p,  width = 5, height = 4)
 
 #
 #######
@@ -82,100 +76,6 @@ ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 4, units = c("in"))
 #####################
 #############
 ########
-#
-
-
-
-#DEPRECATED
-make_dnds_plot <- function(dndsData, title){
-  
-  
-  emptyTheme <- theme(axis.line = element_blank(),
-                      panel.grid.major = element_blank(),
-                      panel.grid.minor = element_blank(),
-                      panel.border = element_blank(),
-                      panel.background = element_blank())
-  
-  capThresh <- 1e-9
-  signifThresh = .0001
-  plotThreshHyper <- .001
-  plotThreshNormal <- .000001
-  minCoord = .9
-  
-  maxCoord = 2-log10(capThresh)
-  
-  ggplot()+
-    geom_text_repel(data = dndsData[((dndsData$qglobal_cv.Normal > signifThresh) & (dndsData$qglobal_cv.Hyper < plotThreshHyper)),],
-                    aes(x=1- log10(qglobal_cv.Normal + capThresh), y=1-log10(qglobal_cv.Hypermutated+ capThresh),
-                        label=gene_name, colour=cancerType))+
-    geom_point(data = dndsData,
-               aes(x=1- log10(qglobal_cv.Normal + capThresh), y=1-log10(qglobal_cv.Hypermutated + capThresh),
-                   colour=cancerType))+
-    
-    scale_x_continuous(breaks=c(1,2,3,5,1-log10(capThresh)), labels=c('1', '2', '3', '5', '>10'))+
-    scale_y_continuous(breaks=c(1,2,3,5,1-log10(capThresh)), labels=c('1', '2', '3', '5', '>10'))+
-    
-    #BELLS and whistles for the plot
-    geom_segment(aes(x=minCoord, xend=maxCoord, y=1- log10(.01), yend= 1- log10(.01)), colour='black', linetype=2)+
-    geom_segment(aes(x=1- log10(.01), xend=1- log10(.01), y=minCoord, yend= maxCoord), colour='black', linetype=2)+
-    
-    geom_segment(aes(x=minCoord, xend=maxCoord, y=1- log10(.1), yend= 1- log10(.1)), colour='black')+
-    geom_segment(aes(x=1- log10(.1), xend=1- log10(.1), y=minCoord, yend= maxCoord), colour='black')+
-    ylab('1 minus log(q) value in hypermutators')+
-    xlab('1 minus log(q) value in non-hypermutators')+
-    emptyTheme+
-    labs(caption='runDnDsCv.R\nmake_dnds_figure_2c.ipynb')+
-    ggtitle(title)
-}
-
-#current file lives @ '/Users/friedman/Desktop/WORK/dataForLocalPlotting/dndscvSummary.tsv'
-figure2aDataFrame <- read.table(paste(plottingFilePath, 'figure2aDNDSSummary.tsv', sep='') , sep = '\t', header=TRUE)
-p <- make_dnds_plot(figure2aDataFrame, 'DNDS-CV Comparing Hypermutated and\n Non-Hypermutated Cancers')
-ggsave(paste(plottingFilePath, 'figure2a.pdf', sep=''), plot=p,  width = 6, height = 6)
-
-#
-######
-###############
-########################
-##################################
-########################
-###############
-######
-#
-#FIGURE 2B
-
-df <- read.table('/Users/friedman/Desktop/hypermutationProjectFinal/tables/table2.tsv', sep='\t', header=TRUE)
-
-p <- ggplot(df, aes(x=TMB))+
-        geom_smooth(aes(y=NEUTRAL_TRUNCATING_RATE, color='Neutral'), span=1, se=FALSE)+
-        geom_smooth(aes(y=ESSENTIAL_TRUNCATING_RATE, color='Essential'), span=1, se=FALSE)+
-        geom_smooth(aes(y=TSG_TRUNCATING_RATE, color='TSG'), span=1, se=FALSE)+
-        geom_smooth(aes(y=ONCOGENE_TRUNCATING_RATE,  color='Oncogene'), span=1, se=FALSE)+
-  
-        stat_summary_bin(aes(y=NEUTRAL_TRUNCATING_RATE, color='Neutral'), bins=8, alpha=0.5)+
-        stat_summary_bin(aes(y=ESSENTIAL_TRUNCATING_RATE, color='Essential'), bins=8, alpha=0.5)+
-        stat_summary_bin(aes(y=TSG_TRUNCATING_RATE, color='TSG'), bins=8, alpha=0.5)+
-        stat_summary_bin(aes(y=ONCOGENE_TRUNCATING_RATE,  color='Oncogene'), bins=8, alpha=0.5)+      
-  
-        emptyTheme+
-        scale_color_manual(values=c('Green', 'Gray', 'Red', 'Blue'))+
-        ylab('Rate of truncating mutation')+
-        xlab('TMB')+
-        xlim(0,200)+
-        ylim(0,40)
-
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 3, height = 4)
-
-
-
-#
-######
-###############
-########################
-##################################
-########################
-###############
-######
 #
 #FIGURE 2C
 
@@ -195,14 +95,15 @@ plot_figure_2c <- function(df){
   return(p)
 }
 
+figure2cDataFrame <- read.table(paste(plottingDataPath, 'figure_2c.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_2c(figure2cDataFrame[(figure2cDataFrame$c1_cancerType == 'Endometrial Cancer') & (figure2cDataFrame$c2_cancerType == 'Colorectal Cancer'), ])
+saveFilePath = paste(plottingFilePath, 'figure2c.pdf')
+ggsave(saveFilePath, plot=p,  width = 5, height = 5)
+
 #Correlation scores
 cor(df[df$GeneType == 'oncogene',]$perCaseColorectal, df[df$GeneType == 'oncogene',]$perCaseEndometrial, method='pearson')
 cor(df[df$GeneType == 'tsg',]$perCaseColorectal, df[df$GeneType == 'tsg',]$perCaseEndometrial, method='pearson')
 
-df <- read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/craigStylePlot.tsv', sep='\t', header=TRUE)
-p <- plot_figure_2c(df[(df$c1_cancerType == 'Endometrial Cancer') & (df$c2_cancerType == 'Colorectal Cancer'), ])
-
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 5)
 #
 ######
 ###############
@@ -212,7 +113,7 @@ ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 5)
 ###############
 ######
 #
-#FIGURE 2D: phasing
+#FIGURE 2D
 
 make_figure_2d <- function(df){
   p <- ggplot(df, aes(x=factor(label, levels=c('B2M', 'PTEN', 'TP53', 'ARID1A', 'APC',
@@ -226,10 +127,10 @@ make_figure_2d <- function(df){
   return(p)
 }
 
-df <- read.table('/Users/friedman/Desktop/hypermutationProjectFinal/files/infoFiles/phasingSummary.tsv', sep='\t', header=TRUE)
-
-p <- make_figure_2d(df)
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 5)
+figure2dDataFrame <- read.table(paste(plottingDataPath, 'figure_2d.tsv', sep=''), sep='\t', header=TRUE)
+p <- make_figure_2d(figure2dDataFrame)
+saveFilePath = paste(plottingFilePath, 'figure2d.pdf')
+ggsave(saveFilePath, plot=p,  width = 5, height = 5)
 
 #
 ######
@@ -258,83 +159,7 @@ plot_figure_2e <- function(df){
   return(p)
 }
 
-
-df <- read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/doubleHitPlot.tsv', sep='\t', header=TRUE)
-p <- plot_figure_2e(df)
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 5)
-
-
-#
-#
-#DEPRECATED?
-
-make_dnds_weak_drivers_plot <- function(dndsData, title){
-  plotThresh <- .1
-  minCoord = .9
-  
-  dndsData <- dndsData[(dndsData$qglobal_cv.Normal > .01) & (dndsData$qglobal_cv.Normal > .01),]
-  ggplot()+
-    geom_text_repel(data = dndsData[(dndsData$qglobal_cv.Normal < plotThresh) | (dndsData$qglobal_cv.Hypermutated < plotThresh),],
-                    aes(x=1- log10(qglobal_cv.Normal), y=1-log10(qglobal_cv.Hypermutated), label=gene_name, colour=cancerType))+
-    geom_point(data = dndsData[(dndsData$qglobal_cv.Normal >= plotThresh) & (dndsData$qglobal_cv.Hypermutated >= plotThresh),],
-               aes(x=1- log10(qglobal_cv.Normal), y=1-log10(qglobal_cv.Hypermutated), colour=cancerType))+
-    
-    geom_point(aes(x=1 - mean(log(dndsData[dndsData$qglobal_cv.Normal > 0,]$qglobal_cv.Normal)),
-                   y=1 - mean(log(dndsData[dndsData$qglobal_cv.Hypermutated > 0,]$qglobal_cv.Hypermutated))), colour='orange', size=3)+
-    #geom_text_repel(aes(x=1 - mean(log(dndsData[dndsData$qglobal_cv.Normal > 0,]$qglobal_cv.Normal)),
-    #                    y=1 - mean(log(dndsData[dndsData$qglobal_cv.Hypermutated > 0,]$qglobal_cv.Hypermutated))), label='mean q_val', colour='orange')+
-    
-    xlim(minCoord,3)+
-    ylim(minCoord,3)+
-    geom_segment(aes(x=minCoord, xend=3, y=1- log10(.01), yend= 1- log10(.01)), colour='black', linetype=2)+
-    geom_segment(aes(x=1- log10(.01), xend=1- log10(.01), y=minCoord, yend= 3), colour='black', linetype=2)+
-    geom_segment(aes(x=minCoord, xend=3, y=1- log10(.1), yend= 1- log10(.1)), colour='black')+
-    geom_segment(aes(x=1- log10(.1), xend=1- log10(.1), y=minCoord, yend= 3), colour='black')+
-    ylab('1 minus q value in hypermutators')+
-    xlab('1 minus q value in non-hypermutators')+
-    ggtitle(title)
-}
-
-
-
-
-#CURRENTLY CLONALITY PLOT
-df <- read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/clonalSummary.tsv', sep='\t', header=TRUE)
-p <- ggplot()+
-  
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'Endogenous') &
-                         ((df$Hugo_Symbol == 'POLE')),], aes(x=1, y=clonal), colour='#228B22')+
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'Endogenous') &
-                         ((df$Hugo_Symbol == 'MLH1') | (df$Hugo_Symbol == 'MSH2') | (df$Hugo_Symbol == 'MSH6')| (df$Hugo_Symbol == 'PMS2')),],
-               aes(x=2, y=clonal), colour='#228B22')+
-  
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'Endogenous'),], aes(x=3, y=clonal), colour='#228B22')+
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'Endogenous') & (df$geneType == 'TSG'),], aes(x=4, y=clonal), colour='#228B22')+
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'Endogenous') & (df$geneType == 'Oncogene'),], aes(x=5, y=clonal), colour='#228B22')+
-  stat_summary(data=df[(df$driverType == 'VUS') & (df$mutationType == 'Endogenous'),], aes(x=6, y=clonal), colour='#228B22')+
-  
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'TMZ-glioma'),], aes(x=7, y=clonal), colour='purple')+
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'TMZ-glioma') & (df$geneType == 'TSG'),], aes(x=8, y=clonal), colour='purple')+
-  stat_summary(data=df[(df$driverType == 'driver') & (df$mutationType == 'TMZ-glioma') & (df$geneType == 'Oncogene'),], aes(x=9, y=clonal), colour='purple')+
-  stat_summary(data=df[(df$driverType == 'VUS') & (df$mutationType == 'TMZ-glioma'),], aes(x=10, y=clonal), colour='purple')+
-  
-  ylim(0,1)+
-  ylab('Fraction of mutations clonal')+
-  scale_x_continuous(breaks=c(1,2,3,4,5,
-                              6,7,8,9,10), labels=c( 'POLE', 'MMR genes', 'All Drivers', 'TSG Drivers', 'Oncogene Drivers', 'All VUS',
-                                                     'All Drivers', 'TSG Drivers', 'Oncogene Drivers', 'All VUS'))+
-  theme(axis.text.x = element_text(angle=90))+
-  xlab('MMR/POLE tumors                TMZ Glioma')+
-  emptyTheme+
-  labs(caption='plotFigure2.R\nmutation_clonality_analyses_4a.ipynb')
-
-ggsave('~/Desktop/plot.pdf', plot=p,  width = 4, height = 4)
-
-
-
-
-
-
-
-
-
+figure2eDataFrame <- read.table(paste(plottingDataPath, 'figure_2e.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_2e(figure2eDataFrame)
+saveFilePath = paste(plottingFilePath, 'figure2e.pdf')
+ggsave(saveFilePath, plot=p,  width = 5, height = 5)
