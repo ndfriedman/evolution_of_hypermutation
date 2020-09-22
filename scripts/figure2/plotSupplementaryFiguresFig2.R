@@ -313,6 +313,23 @@ ggsave(saveFilePath, plot=p,  width = 6, height = 4, units = c("in"))
 #############
 #########
 ####
+#Figure S2 (x)
+
+plot_figure_s2_x <- function(df){
+  p <- ggplot(df[df$pVal < .05,], aes(x=cancerType, fill=geneType))+
+        geom_bar()+
+        theme(axis.text.x = element_text(angle=90))+
+        emptyTheme+
+        ylab('n genes')+
+        ggtitle('genes enriched for double mutation\nvia permutation test')
+  return(p)
+}
+
+figureS2xDf <- read.table(paste(plottingDataPath, 'figureS2_x.tsv', sep=''), sep = '\t', header=TRUE)
+p <- plot_figure_s2_x(figureS2xDf) #FYI trying to display the variable p will cause an R viewport error (it saves fine though)
+saveFilePath = paste(plottingFilePath, 'figureS2_x.pdf')
+ggsave(saveFilePath, plot=p,  width = 4, height = 4, units = c("in"))
+
 
 
 #
