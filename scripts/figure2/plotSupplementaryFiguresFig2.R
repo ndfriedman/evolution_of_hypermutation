@@ -9,15 +9,15 @@ library(data.table); setDTthreads(6)
 library(ggpubr)
 library(ggrepel)
 
+plottingDataPath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/plotDataFiles/'
+plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/figurePdfs/'
+
 emptyTheme <- theme(axis.line = element_blank(),
+                    axis.ticks = element_blank(),
                     panel.grid.major = element_blank(),
                     panel.grid.minor = element_blank(),
                     panel.border = element_blank(),
                     panel.background = element_blank())
-
-plottingDataPath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/plotDataFiles/'
-plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/figurePdfs/'
-
 #
 ###
 ######
@@ -28,7 +28,7 @@ plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/fi
 ############
 #######
 ##
-#Figure S2 (i) indel and stop gain prevalence by signature type
+#Figure S2 (a) indel and stop gain prevalence by signature type
 
 plot_figure_s2_i <- function(df){
   p <- ggplot(df, aes(x=dominantSignatureAdj, fill=variable, y = frac))+
@@ -45,6 +45,93 @@ figureS2iDf <- read.table(paste(plottingDataPath, 'figureS2_i.tsv', sep=''), sep
 p <- plot_figure_s2_i(figureS2iDf)
 saveFilePath = paste(plottingFilePath, 'figureS2_i.pdf')
 ggsave(saveFilePath, plot=p,  width = 4, height = 3)
+#
+######
+###########
+###################
+############################
+####################################
+###########################################
+####################################
+############################
+###################
+###########
+######
+#Figure S2 (b) All possible drivers
+plot_figure_s2_b <- function(df){
+  
+  plot_pie_chart <- function(df, title){
+    ggplot(df, aes(x=1, fill=hypermutationInduced))+
+      geom_bar()+
+      coord_polar("y", start=0)+
+      emptyTheme+
+      theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.text.y = element_blank())+
+      xlab('')+ylab('')+
+      scale_fill_manual(values=c('black', 'gray', '#d3d3d3'))+
+      ggtitle(title)
+  }
+  
+  p1 <- plot_pie_chart(df[df$geneType == 'VUS',], 'VUS')
+  p2 <- plot_pie_chart(df[df$geneType == 'Oncogene',], 'Oncogene')
+  p3 <- plot_pie_chart(df[df$geneType == 'TSG_missense',], 'TSG missense')
+  p4 <- plot_pie_chart(df[df$geneType == 'TSG_truncating',], 'TSG truncating')
+  leg <- get_legend(p1)
+  p1 <- p1 + theme(legend.position = 'none')
+  p2 <- p2 + theme(legend.position = 'none')
+  p3 <- p3 + theme(legend.position = 'none')
+  p4 <- p4 + theme(legend.position = 'none')
+  alignedPlot <- plot_grid(p1, p2, p3, p4)
+  finalPlot <- plot_grid(alignedPlot, leg, rel_widths = c(1,.5))
+  return(finalPlot)
+}
+
+figureS2bDf <- read.table(paste(plottingDataPath, 'figureS2_b.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_s2_b(figureS2bDf)
+saveFilePath = paste(plottingFilePath, 'figureS2_b.pdf')
+ggsave(saveFilePath, plot=p,  width = 6, height = 6)
+
+#
+######
+###########
+###################
+############################
+####################################
+###########################################
+####################################
+############################
+###################
+###########
+######
+#Figure S2 (c) All possible drivers
+
+plot_figure_s2_c <- function(df){
+  pAll <- ggplot(df, aes(x=1, fill=mutationType, y=number))+
+            geom_bar(aes(y=number), stat='identity')+
+            emptyTheme+
+            ylab('n possible mutations')+
+            ggtitle('non-\nsynonymous')+
+            xlab('')+
+            theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+    
+  pDrivers <- ggplot(df[df$mutationType != 'VUS',], aes(x=1, fill=mutationType, y=number))+
+    geom_bar(aes(y=number), stat='identity')+
+    emptyTheme+
+    ggtitle('driver')+
+    xlab('')+
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())+
+    ylab('n possible mutations')+
+    theme(legend.position = 'none')
+  
+  leg <- get_legend(pAll)
+  pAll <- pAll + theme(legend.position = 'none')
+  alignedPlot <- plot_grid(pAll, pDrivers, leg, ncol=3, rel_widths = c(1,1,.75))
+  return(alignedPlot)
+}
+
+figureS2cDf <- read.table(paste(plottingDataPath, 'figureS2_c.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_s2_c(figureS2cDf)
+saveFilePath = paste(plottingFilePath, 'figureS2_c.pdf')
+ggsave(saveFilePath, plot=p,  width = 5, height = 4)
 
 
 #
@@ -60,7 +147,21 @@ ggsave(saveFilePath, plot=p,  width = 4, height = 3)
 ###########
 ######
 #
-#Figure S2 (ii) Fraction drivers in related genes
+
+#
+######
+###########
+###################
+############################
+####################################
+###########################################
+####################################
+############################
+###################
+###########
+######
+#
+#Figure S2 (d) Fraction drivers in related genes
 
 plot_figure_s2_ii <- function(df){
   p <- ggplot(df[(df$nUnrelatedExpected > .01),],
