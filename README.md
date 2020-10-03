@@ -17,7 +17,7 @@ evolution_of_hypermutation
 |   |   plotFigure1.R (plots all figure1 panels)
 |   |   plotSupplementaryFiguresFig1.R (plots all Supplemental Figure 1 panels)
 |   |
-|   └───FIGURE1_PLOTTING_FILES
+|   └───FIGURE1_PLOTTING_FILES (figure plots and dataframes used to generate them)
 |   |   |
 |   |   └───figurePdfs (PDFs of figures)
 |   |   |   |   figure1.pdf (combined pdf with all figure 1 plots)
@@ -32,9 +32,16 @@ evolution_of_hypermutation
 |   |   |   |   ...
 |   |   |   |
 │   └───figure2 (same structure figure 1)
+|   |  
 │   └───figure3 (same structure figure 1)
-│   └───utilityScripts
+|   |   
+│   └───utilityScripts (various python scripts imported throughout project or used for standalone file generation)
 │
 └───files
-    │   file021.txt
+|   |   |
+|   |   └───infoFiles (files with general reference data: i.e cancer type, gene expression, msi scores)
+|   |   |
+|   |   └───expectedMutationInfo (files specific to analysis modules related to estimating expected mutation burdens)
+|   |   |
+|   |   └───mafs (all maf files--annotated, unannotated, cohort specific, pan cohort)
 ```
