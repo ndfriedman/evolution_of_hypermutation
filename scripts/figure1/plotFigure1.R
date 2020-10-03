@@ -12,15 +12,6 @@ library(ggpubr)
 
 #Pan plot set up info
 
-#TO BEAUTIFY OUR PLOTS WE ADD "EMPTY THEME"
-emptyTheme <- theme(axis.line = element_blank(),
-                    #axis.text.x = element_blank(),
-                    axis.ticks = element_blank(),
-                    panel.grid.major = element_blank(),
-                    panel.grid.minor = element_blank(),
-                    panel.border = element_blank(),
-                    panel.background = element_blank())
-
 #adjust this as needed
 plottingDataPath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/plotDataFiles/'
 plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/figurePdfs/'
@@ -43,7 +34,7 @@ plot_figure_1a <- function(df){
     theme(axis.text.x = element_text(angle=90))+
     theme(axis.ticks.x = element_blank())+
     scale_fill_manual(values=c('#858585', 'light gray'))+
-    emptyTheme+
+    theme_classic()+
     xlab('Cancer Type')+
     ylab('Fraction of cases hypermutated')+
     coord_flip()
@@ -51,7 +42,7 @@ plot_figure_1a <- function(df){
 }
 
 figure1aDataFrame <- read.table(paste(plottingDataPath, 'figure_1a.tsv', sep=''), sep='\t', header=TRUE)
-p <- plot_figure_1a(figure1aDataFrame)
+plt1a <- plot_figure_1a(figure1aDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1a.pdf')
 ggsave(saveFilePath, plot=p,  width = 6, height = 4)
 
@@ -67,7 +58,7 @@ ggsave(saveFilePath, plot=p,  width = 6, height = 4)
 plot_figure_1b <- function(df){
   p <- ggplot(df, aes(x=1, fill=signature, y=nHyperHigh/sum(df$nHyperHigh)))+
     geom_bar(stat='identity')+
-    emptyTheme+
+    theme_classic()+
     scale_fill_manual(values=c("#FF0000","#267574",
                                'gray', "#ADFF2F","#00dd5d", '#ffb347', '#2A52BE', "#FFF600"))+
     xlab('')+
@@ -77,7 +68,7 @@ plot_figure_1b <- function(df){
 }
 
 figure1bDataFrame <- read.table(paste(plottingDataPath, 'figure_1b.tsv', sep=''), sep='\t', header=TRUE)
-p <- plot_figure_1b(figure1bDataFrame)
+plt1b <- plot_figure_1b(figure1bDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1b.pdf')
 ggsave(saveFilePath,
        plot=p,  width = 3, height = 5)
@@ -100,12 +91,12 @@ plot_figure_1c <- function(df){
                                   'normal_Glioma', 'hyper_Glioma', 'normal_Other', 'hyper_Other'))))+
     stat_summary(fun.y = median, geom = "errorbar", aes(ymax = ..y.., ymin = ..y..),
                  width = 0.75, size = 1, linetype = "solid")+
+    theme_classic()+
     theme(axis.text.x = element_text(angle = 60, hjust = 1, size=10))+
     #scale_colour_manual(values =  c('black', "#267574", 'gray', '#ADFF2F', "#9acd32", '#2A52BE'), name="Dominant\nSignature")+
     ylab('N Driver Mutations')+
     #ylab('N hotspot mutations')+
     xlab('Cancer Type')+
-    emptyTheme+
     coord_cartesian(ylim=c(0,50))+
     #geom_jitter(aes(colour=factor(cohort,
     #                              levels = c('normal_Colorectal', 'hyper_Colorectal', 'normal_Endometrial', 'hyper_Endometrial',
@@ -118,7 +109,7 @@ plot_figure_1c <- function(df){
 }
 
 figure1cDataFrame <- read.table(paste(plottingDataPath, 'figure_1c.tsv', sep=''), sep='\t', header=TRUE)
-plt <- plot_figure_1c(figure1cDataFrame)
+plt1c <- plot_figure_1c(figure1cDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1c.pdf')
 ggsave(saveFilePath,
        plot=plt,  width = 6, height = 4, units = c("in"), limitsize = FALSE)
@@ -152,12 +143,12 @@ plot_figure_1d <- function(df){
     scale_colour_manual(values=c('gray', 'black'))+
     ylab('Putative SNP drivers')+
     xlab('nmut in IMPACT-341 genes')+
-    emptyTheme
+    theme_classic()
   return(p)
 }
 
 figure1dDataFrame <- read.table(paste(plottingDataPath, 'figure_1d.tsv', sep=''), sep = '\t', header=TRUE)
-p <- plot_figure_1d(figure1dDataFrame)
+plt1d <- plot_figure_1d(figure1dDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1d.pdf')
 ggsave(saveFilePath,
        plot=p,  width = 3, height = 4, units = c("in"), limitsize = FALSE)
@@ -194,7 +185,7 @@ plot_figure_1e <- function(df){
     xlim(0,200)+
     #scale_color_manual(values=c('#CB9D06', '#4682b4'))+
     ylab('Difference between observed & expected indels')+
-    emptyTheme+
+    theme_classic()+
     scale_color_manual(values=c("#FF0000","#267574",
                                 "#ADFF2F", '#ffb347', '#2A52BE', "#FFF600"))
     ggtitle('All Exomes')
@@ -210,7 +201,7 @@ plot_figure_1e_msi_only <- function(df){
     scale_linetype_manual(values=c("dotted", "solid"))+
     scale_color_manual(values=c('#CB9D06', '#4682b4'))+
     ylab('N indels')+
-    emptyTheme+
+    theme_classic()+
     ggtitle('MSI only')+
     xlim(0,200)
   return(p)
@@ -218,10 +209,89 @@ plot_figure_1e_msi_only <- function(df){
 
 #plot figure 1e
 figure1eDataFrame <- read.table(paste(plottingDataPath, 'figure_1e.tsv', sep=''), sep = '\t', header=TRUE)
-p <- plot_figure_1e(figure1eDataFrame)
+plt1e <- plot_figure_1e(figure1eDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure1e.pdf')
 ggsave(saveFilePath,
        plot=p,  width = 3, height = 4, units = c("in"), limitsize = FALSE)
+
+#
+#####
+#################
+##############################
+#################
+######
+#
+plot_figure_1f <- function(df){
+  p <- ggplot(df)+
+    geom_violin(bw=1, aes(x='TSG', y=mutRateTSG*1e6))+
+    geom_violin(bw = 1, aes(x='neutral', y=mutRateNotEssential*1e6))+
+    geom_violin(bw = 1, aes(x='essential', y=mutRateEssential*1e6))+
+    theme_classic()+
+    stat_summary(aes(x='TSG', y=mutRateTSG*1e6))+
+    stat_summary(aes(x='neutral', y=mutRateNotEssential*1e6))+
+    stat_summary(aes(x='essential', y=mutRateEssential*1e6))+
+    ylab('rate of truncating mutation/MB')+
+    coord_cartesian(ylim=c(0,10))+
+    xlab('gene type')
+  return(p)
+}
+
+figure1fDataFrame <- read.table(paste(plottingDataPath, 'figure_1f.tsv', sep=''), sep = '\t', header=TRUE)
+p <- plot_figure_1f(figure1fDataFrame)
+saveFilePath = paste(plottingFilePath, 'figure1f.pdf')
+ggsave(saveFilePath,
+       plot=p,  width = 3, height = 4, units = c("in"), limitsize = FALSE)
+
+#
+#####
+#################
+##############################
+#################
+######
+#
+
+
+#FINAL PLOT
+
+#First pad plots
+
+#1a
+RightPadRatio <- 0
+LowerPadRatio <- .5
+padded1a <- plot_grid(ggplot()+ggtitle('a.'), plot_grid(plt1a, ggplot(), ncol=2, rel_widths = c(1, RightPadRatio)),
+                      ggplot(), nrow=3, rel_heights = c(.2, 1, LowerPadRatio))
+#1b
+f1RightPadRatio <- 1.5
+f1LowerPadRatio <- 0
+padded1b <- plot_grid(ggplot()+ggtitle('b.'), plot_grid(plt1b, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
+                      ggplot(), nrow=3, rel_heights = c(.2, 1, LowerPadRatio))
+
+#1c
+f1RightPadRatio <- 0
+f1LowerPadRatio <- .2
+padded1c <- plot_grid(ggplot()+ggtitle('c.'), plot_grid(plt1c, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
+                      ggplot(), nrow=3, rel_heights = c(.2, 1, LowerPadRatio))
+
+#1d
+f1RightPadRatio <- .5
+f1LowerPadRatio <- 0
+padded1d <- plot_grid(ggplot()+ggtitle('d.'), plot_grid(plt1d, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
+                      ggplot(), nrow=3, rel_heights = c(.2, 1, LowerPadRatio))
+
+#1e
+f1RightPadRatio <- .5
+f1LowerPadRatio <- 0
+padded1e <- plot_grid(ggplot()+ggtitle('e.'), plot_grid(plt1e, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
+                      ggplot(), nrow=3, rel_heights = c(.2, 1, LowerPadRatio))
+
+
+combinedPdfPlot <- plot_grid(padded1a, padded1b, 
+                             padded1c, padded1d, padded1e,
+                             ggplot(), ggplot(), ggplot(), ggplot(), #include extra plots for padding purposes
+                             nrow=3, ncol=3)
+saveFilePath = paste(plottingFilePath, 'figure1.pdf')
+ggsave(saveFilePath,
+       plot=combinedPdfPlot,  width = 20, height = 20, units = c("in"), limitsize = FALSE)
 
 
 
