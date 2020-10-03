@@ -12,11 +12,11 @@ evolution_of_hypermutation
 │
 └───scripts
 │   └───figure1
-|   |   make_figure_1.ipynb (all code to make figure 1 dataframes)
-|   |   make_figure1_supplementary_figures.ipynb (all code to make figure S1 dataframes)
-|   |   plotFigure1.R (plots all figure1 panels)
-|   |   plotSupplementaryFiguresFig1.R (plots all Supplemental Figure 1 panels)
-|   |
+|   |   |   make_figure_1.ipynb (all code to make figure 1 dataframes)
+|   |   |   make_figure1_supplementary_figures.ipynb (all code to make figure S1 dataframes)
+|   |   |   plotFigure1.R (plots all figure1 panels)
+|   |   |   plotSupplementaryFiguresFig1.R (plots all Supplemental Figure 1 panels)
+|   |   |
 |   └───FIGURE1_PLOTTING_FILES (figure plots and dataframes used to generate them)
 |   |   |
 |   |   └───figurePdfs (PDFs of figures)
