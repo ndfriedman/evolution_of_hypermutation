@@ -6,3 +6,11 @@ This repo provides code and files to reproduce analyses for my paper on the evol
 +--- Figure1<br>
 |&nbsp; &nbsp; &nbsp; &nbsp;+--FILES_TO_GENERATE_PLOTS-<br>
 |-<br>
+
+```
+project
+│   README.md
+│   file001.txt    
+│
+└───folder1
+```
