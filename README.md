@@ -17,20 +17,20 @@ evolution_of_hypermutation
 |   |   |   plotFigure1.R (plots all figure1 panels)
 |   |   |   plotSupplementaryFiguresFig1.R (plots all Supplemental Figure 1 panels)
 |   |   |
-|   └───FIGURE1_PLOTTING_FILES (figure plots and dataframes used to generate them)
+|   |   └───FIGURE1_PLOTTING_FILES (figure plots and dataframes used to generate them)
 |   |   |
-|   |   └───figurePdfs (PDFs of figures)
-|   |   |   |   figure1.pdf (combined pdf with all figure 1 plots)
-|   |   |   |   figureS1.pdf (combined pdf with all figure 1 supplemental plots)
-|   |   |   |   figure1a.pdf (indidual panel figures)
-|   |   |   |   figureS1a.pdf (individual supplemental figures)
-|   |   |   |   ...
+|   |   |   └───figurePdfs (PDFs of figures)
+|   |   |   |   |   figure1.pdf (combined pdf with all figure 1 plots)
+|   |   |   |   |   figureS1.pdf (combined pdf with all figure 1 supplemental plots)
+|   |   |   |   |   figure1a.pdf (indidual panel figures)
+|   |   |   |   |   figureS1a.pdf (individual supplemental figures)
+|   |   |   |   |   ...
 |   |   |   |
-|   |   └───plotDataFiles (tsvs used to generate pdf plots--note not all figures have individual tsvs)
-|   |   |   |   figure_1b.tsv 
-|   |   |   |   figure_S1a.tsv 
-|   |   |   |   ...
-|   |   |   |
+|   |   |   └───plotDataFiles (tsvs used to generate pdf plots--note not all figures have individual tsvs)
+|   |   |   |   |   figure_1b.tsv 
+|   |   |   |   |   figure_S1a.tsv 
+|   |   |   |   |   ...
+|   |   |   |   |
 │   └───figure2 (same structure figure 1)
 |   |  
 │   └───figure3 (same structure figure 1)
