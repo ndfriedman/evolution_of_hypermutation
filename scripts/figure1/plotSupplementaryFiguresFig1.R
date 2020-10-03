@@ -11,29 +11,18 @@ library(stringr)
 library(gdata)
 library(ggpubr)
 
-
-#
-###
-######
-#############
-##################
-##########################
-#################
-############
-#######
-###
-#
-
 emptyTheme <- theme(axis.line = element_blank(),
-                    #axis.text.x = element_blank(),
                     axis.ticks = element_blank(),
                     panel.grid.major = element_blank(),
                     panel.grid.minor = element_blank(),
                     panel.border = element_blank(),
                     panel.background = element_blank())
 
-#SUPPLEMENTARY FIGURES
+#adjust this as needed
+plottingDataPath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/plotDataFiles/'
+plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/figurePdfs/'
 
+# Figure S1(a) Distributions of TMB by cancer type: refer to code in scripts/utilityScripts/plotAndDefineHypermutationThresholds.R
 
 #
 ###
@@ -45,40 +34,9 @@ emptyTheme <- theme(axis.line = element_blank(),
 ############
 #######
 ###
-#
-#Fraction mutations in panel that are drivers
+# Figure S1 (b) Dominant Signatures in Cohort by Cancer Type
 
 plot_figure_s1_ii <- function(df){
-  ggplot(df, aes(x=nMut, y=fracDriver, colour=dominantSignature))+
-    geom_smooth(se = FALSE)+
-    emptyTheme+
-    xlab('mutations in IM-341 genes')+
-    ylab('fraction tmb from drivers')+
-    scale_colour_manual(values=c("#FF0000",
-      'black', "#267574", 'gray', "#ADFF2F",
-      '#ffb347', '#2A52BE', "#FFF600"))
-}
-
-df <- read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/fractionDrivers.tsv', sep='\t', header=TRUE)
-p <- plot_figure_s1_ii(df)
-ggsave('~/Desktop/plot.pdf',
-       plot=p,  width = 5, height = 3)
-
-
-#
-###
-######
-#############
-##################
-##########################
-#################
-############
-#######
-###
-#
-#SIGNATURES BY CANCER TYPE SUPPLEMENTARY FIGURE
-
-plot_signatures_figure_sup <- function(df){
   p <- ggplot(df, aes(x=reorder(cancerType, -orderingVal), y= frac))+
     
     geom_bar(aes(fill=
@@ -97,49 +55,12 @@ plot_signatures_figure_sup <- function(df){
   return(p)
 }
 
-df <- read.table('/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/figure1bSignatureSummary.tsv',
-                                sep='\t', header=TRUE)
+figureS1bDf <- read.table(paste(plottingDataPath, 'figure_1b.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_s1_ii(figureS1iiDf)
+saveFilePath = paste(plottingFilePath, 'figureS1_b.pdf')
+ggsave(saveFilePath,
+       plot=p,  width = 5, height = 5)
 
-pSup <- plot_signatures_figure_sup(df)
-ggsave('~/Desktop/plot.pdf',
-       plot=pSup,  width = 5, height = 5)
-
-#
-###
-######
-#############
-##################
-##########################
-#################
-############
-#######
-###
-#
-#MUTAITON TYPES BY SIGNATURE
-df <- read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/mutationTypeSummary.tsv',
-                 sep='\t', header=TRUE)
-
-pTrunc <- ggplot(df, aes(x=reorder(dominantSignature, isTruncating), y=isTruncating))+
-  stat_summary(geom='bar', fill='#838383')+
-  stat_summary(geom='errorbar', colour='gray')+
-  theme(axis.text.x = element_text(angle=90))+
-  ylab('fraction stop gain mutations')+
-  xlab('dominant signature')+
-  coord_cartesian(ylim=c(0,.3))+
-  emptyTheme
-
-pIndel <- ggplot(df, aes(x=reorder(dominantSignature, isIndel), y=isIndel))+
-  stat_summary(geom='bar', fill='#838383')+
-  stat_summary(geom='errorbar', colour='gray')+
-  theme(axis.text.x = element_text(angle=90))+
-  ylab('fraction INDELs')+
-  xlab('dominant signature')+
-  coord_cartesian(ylim=c(0,.3))+
-  emptyTheme
-
-alignedPlot <- plot_grid(pTrunc, pIndel, ncol=2)
-ggsave('~/Desktop/plot.pdf',
-       plot=alignedPlot,  width = 5, height = 3)
 
 
 #
@@ -152,34 +73,172 @@ ggsave('~/Desktop/plot.pdf',
 ############
 #######
 ###
+#Figure S1 (c) Ratio of passengers to driver by TMB
+
+plot_figure_s1_iii <- function(df){
+  ggplot(df, aes(x=nMut, y=nDriver/(nMut - nDriver), colour=dominantSignature))+
+    geom_smooth(se = FALSE)+
+    emptyTheme+
+    xlab('mutations in IMPACT-341 genes')+
+    ylab('Ratio of drivers/VUS')+
+    scale_colour_manual(values=c("#FF0000",
+                                 'black', "#267574", 'gray', "#ADFF2F",
+                                 '#ffb347', '#2A52BE', "#FFF600"))
+}
+
+figureS1iiiDf <- read.table(paste(plottingDataPath, 'figureS1_iii.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_s1_iii(figureS1iiiDf)
+saveFilePath = paste(plottingFilePath, 'figureS1_iii.pdf')
+ggsave(saveFilePath,
+       plot=p,  width = 5, height = 3)
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
+#Figure S1 (d) 
+
+plot_figure_s1_d <- function(df){
+  p1 <- ggplot(df)+
+    geom_density(aes(x=impactVUSSNPExpected, linetype='expected'))+
+    geom_density(aes(x=vusObserved, linetype='observed'))+
+    emptyTheme+
+    scale_x_log10()+
+    xlab('n mutations')+
+    geom_text(aes(x=30, y=1.75), label='ns')+
+    ggtitle('VUS mutations\n in IMPACT genes')+
+    scale_linetype_manual(values = c("dashed", "solid"))+
+    theme(axis.text.x = element_text(angle=90))
+  p2 <- ggplot(df)+
+    geom_density(aes(x=oncogenicSNPExpected, linetype='expected'))+
+    geom_density(aes(x=oncogenicObserved, linetype='observed'))+
+    emptyTheme+
+    scale_x_log10()+
+    xlab('n mutations')+
+    geom_text(aes(x=3, y=1.5), label='*')+
+    ggtitle('Drivers')+
+    scale_linetype_manual(values = c("dashed", "solid"))+
+    theme(axis.text.x = element_text(angle=90))
+  alignedPlot <- plot_grid(p1, p2, ncol=2)
+  return(alignedPlot)
+}
+
+figureS1dDf <- read.table(paste(plottingDataPath, 'figureS1_d.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_s1_d(figureS1dDf)
+saveFilePath = paste(plottingFilePath, 'figureS1_d.pdf')
+ggsave(saveFilePath,
+       plot=p,  width = 7, height = 2)
+
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
+#
+#Figure S1 (f) propensity of signatures to cause oncogenic, truncating and hotspot mutations
+plot_figure_s1_iv <- function(df, mutType, legend=FALSE){
+  
+  barColorPalette = c(
+    "#00DFFF", "#FF0000", "#FF1493", 
+    "#267574","#D3D3D3","#ADFF2F",
+    "#2A52BE","#FFA500", "purple", "#FFF600"
+  )
+  p <- ggplot(df[df$mutType == mutType,], aes(x=reorder(Signature_Name, frac), y=frac, fill=colorName))+
+    geom_bar(stat='identity')+
+    theme(axis.text.x = element_text(angle=90))+
+    xlab('Signature Name')+
+    emptyTheme+
+    ylim(0, .11)+
+    ylab(paste('chance of a nonsynonymous\nmutation being', mutType))+
+    scale_fill_manual(values=barColorPalette)
+  if(legend == FALSE){
+    p <- p + theme(legend.position = 'none')
+  }
+  return(p)
+}
+
+figureS1fDf <- read.table(paste(plottingDataPath, 'figureS1_f.tsv', sep=''), sep='\t', header=TRUE)
+fullP <- plot_grid(plot_figure_s1_f(figureS1dDf, 'truncating'), 
+                   plot_figure_s1_f(figureS1dDf, 'oncogenic'),
+                   plot_figure_s1_f(figureS1dDf, 'hotspot'),
+                   get_legend(plot_figure_s1_f(figureS1fDf, 'hotspot', legend = TRUE)),
+                   ncol=4)
+saveFilePath = paste(plottingFilePath, 'figureS1_f.pdf')
+ggsave(saveFilePath, plot=fullP,  width = 17, height = 4, units = c("in"))
+
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
+#Figure S1 (v) indel and stop gain prevalence by signature type
+plot_figure_s1_v <- function(df){
+  pTrunc <- ggplot(df, aes(x=reorder(dominantSignature, isTruncating), y=isTruncating))+
+    stat_summary(geom='bar', fill='#838383')+
+    stat_summary(geom='errorbar', colour='gray')+
+    theme(axis.text.x = element_text(angle=90))+
+    ylab('fraction stop gain mutations')+
+    xlab('dominant signature')+
+    coord_cartesian(ylim=c(0,.3))+
+    emptyTheme
+
+  pIndel <- ggplot(df, aes(x=reorder(dominantSignature, isIndel), y=isIndel))+
+    stat_summary(geom='bar', fill='#838383')+
+    stat_summary(geom='errorbar', colour='gray')+
+    theme(axis.text.x = element_text(angle=90))+
+    ylab('fraction INDELs')+
+    xlab('dominant signature')+
+    coord_cartesian(ylim=c(0,.3))+
+    emptyTheme
+  alignedPlot <- plot_grid(pTrunc, pIndel, ncol=2)
+  return(alignedPlot)
+}
+
+figureS1vDf <- read.table(paste(plottingDataPath, 'figureS1_v.tsv', sep=''), sep='\t', header=TRUE)
+p <- plot_figure_s1_v(figureS1vDf)
+saveFilePath = paste(plottingFilePath, 'figureS1_v.pdf')
+ggsave(saveFilePath,
+       plot=p,  width = 5, height = 3)
+
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
 #
 
-#Nucleosomes supplemental figure
-
-df = read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/nucleosomeDyadOnfo.tsv', sep=',', header=TRUE)
-dyadPlot <- ggplot(df, aes(x=closestNucleosomeDistance, y=(..count..)/sum(..count..)))+
-         stat_bin(geom='point', bins=2000)+
-         xlim(-1000, 1000)+
-         ylab('Fraction of all mutations')+
-         xlab('Distance from dyad center')+
-         emptyTheme+
-         ggtitle('Distance from nucleosome dyad\nand mutation rate')+
-         labs(caption='plotSupplementaryFiguresFig1.R\ngenerate_figure1_supplementary_figures.ipynb')
-
-barPlot <- ggplot()+
-  stat_summary(data = df[df$driver == 'True',], aes(x='_driver', y=isCloseToNucleosome, fill='putative driver'), geom='bar')+
-  stat_summary(data = df[df$driver == 'False',], aes(x='_non-driver', y=isCloseToNucleosome, fill='VUS'), geom='bar')+
-  stat_summary(data = df[df$truncatingType == 'truncatingTSG',], aes(x='_truncating TSG', y=isCloseToNucleosome, fill='putative driver'), geom='bar')+
-  stat_summary(data = df[df$truncatingType == 'truncatingOncogene',], aes(x='truncating oncogene', y=isCloseToNucleosome, fill='VUS'), geom='bar')+
-  ylab('Fraction mutations proximal to dyad')+
-  theme(axis.text.x = element_text(angle=90))+
-  ggtitle('Nucleosome impact on mutations')+
-  scale_fill_manual(values=c('dark gray', 'light gray'))+
-  emptyTheme+
-  xlab('mutationType')
-
-alignedPlot <- plot_grid(dyadPlot, barPlot, ncol=2)
-ggsave('~/Desktop/plot.pdf', plot=alignedPlot,  width = 8, height = 4, units = c("in"))
+plot_figure_s1_g <- function(df){
+  p3 <- 
+    ggplot(df[df$vusObserved > 100,])+
+    geom_boxplot(aes(x=1, y=truncatingEssentialExpected, colour='expected'))+ 
+    geom_boxplot(aes(x=2, y=truncatingEssentialObserved, colour='observed'))+
+    scale_y_log10()+
+    emptyTheme+
+    ggtitle('Truncating mutations\nin essential genes')+
+    theme(axis.text.x = element_text(angle=90))
+}
+#We use the same figureS1f tsv for figure S1g
+figureS1gDf <- read.table(paste(plottingDataPath, 'figureS1_f.tsv', sep=''), sep='\t', header=TRUE)
 
 
 #
@@ -196,6 +255,79 @@ ggsave('~/Desktop/plot.pdf', plot=alignedPlot,  width = 8, height = 4, units = c
 
 
 
+#Figure S1 (vi) nucleosome positioning and mutation rate
+
+make_figure_s1_vi <- function(df){
+  dyadPlot <- ggplot(df, aes(x=closestNucleosomeDistance, y=(..count..)/sum(..count..)))+
+    stat_bin(geom='point', bins=2000)+
+    xlim(-1000, 1000)+
+    ylab('Fraction of all mutations')+
+    xlab('Distance from dyad center')+
+    emptyTheme+
+    ggtitle('Distance from nucleosome dyad\nand mutation rate')
+
+  barPlot <- ggplot()+
+    stat_summary(data = df[df$driver == 'True',], aes(x='_driver', y=isCloseToNucleosome, fill='putative driver'), geom='bar')+
+    stat_summary(data = df[df$driver == 'False',], aes(x='_non-driver', y=isCloseToNucleosome, fill='VUS'), geom='bar')+
+    stat_summary(data = df[df$truncatingType == 'truncatingTSG',], aes(x='_truncating TSG', y=isCloseToNucleosome, fill='putative driver'), geom='bar')+
+    stat_summary(data = df[df$truncatingType == 'truncatingOncogene',], aes(x='truncating oncogene', y=isCloseToNucleosome, fill='VUS'), geom='bar')+
+    ylab('Fraction mutations proximal to dyad')+
+    theme(axis.text.x = element_text(angle=90))+
+    ggtitle('Nucleosome impact on mutations')+
+    scale_fill_manual(values=c('dark gray', 'light gray'))+
+    emptyTheme+
+    xlab('mutationType')
+  alignedPlot <- plot_grid(dyadPlot, barPlot, ncol=2)
+  return(alignedPlot)
+}
+
+#NOTE THIS csv can stress memory, be careful
+figureS1viDf <- read.table(paste(plottingDataPath, 'figureS1_vi.csv', sep=''), sep=',', header=TRUE)
+p <- make_figure_s1_vi(figureS1viDf)
+saveFilePath = paste(plottingFilePath, 'figureS1_vi.pdf')
+ggsave(saveFilePath,
+       plot=p,  width = 8, height = 4)
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
+#Figure S1 (vii) expression and mutation rate
+
+make_figure_s1_vii <- function(df){
+  pltBySignature <- ggplot(df)+
+    stat_summary(aes(x=Signature, y=mutRateExpressed*1e6, colour='expressed'))+
+    stat_summary(aes(x=Signature, y=mutRateNotExpressed*1e6, colour='not expressed'))+
+    emptyTheme+
+    theme(axis.text.x = element_text(angle=90))+
+    ylab('mutations per megabase')+
+    xlab('dominant signature')
+  
+  pltByMutationType <- ggplot(df)+
+    stat_summary(aes(x='VUS', y=mutRateVUSExpressed*1e6, colour='expressed'))+
+    stat_summary(aes(x='VUS', y=mutRateVUSNotExpressed*1e6, colour='not expressed'))+
+    stat_summary(aes(x='Truncating', y=mutRateTruncatingExpressed*1e6, colour='expressed'))+
+    stat_summary(aes(x='Truncating', y=mutRateTruncatingNotExpressed*1e6, colour='not expressed'))+
+    stat_summary(aes(x='Driver', y=mutRateDriverExpressed*1e6, colour='expressed'))+
+    stat_summary(aes(x='Driver', y=mutRateDriverNotExpressed*1e6, colour='not expressed'))+
+    emptyTheme+
+    theme(axis.text.x = element_text(angle=90))+
+    xlab('mutation type')+
+    ylab('mutations per megabase')
+    
+  return(plot_grid(pltBySignature, pltByMutationType, ncol=2))
+}
+
+figureS1viiDf <- read.table(paste(plottingDataPath, 'figureS1_vii.tsv', sep=''), sep='\t', header=TRUE)
+p <- make_figure_s1_vii(figureS1viiDf)
+saveFilePath = paste(plottingFilePath, 'figureS1_vii.pdf')
+ggsave(saveFilePath,
+       plot=p,  width = 8, height = 4)
 
 
 
@@ -203,6 +335,32 @@ ggsave('~/Desktop/plot.pdf', plot=alignedPlot,  width = 8, height = 4, units = c
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+####
+##########
+####################
+#############################
+########################################
+####################################################
+#DEPRECATED FILES HERE FOR NOW, will be deleted
 
 #WORK on Monday Dec 2
 
@@ -217,28 +375,6 @@ ggplot(df, aes(x= nmut))+
   geom_point(aes(y=nEssentialDoubleNormed, colour='essentialDoubleRate'))+
   geom_point(aes(y=nNeutralDoubleNormed, colour='neutralDoubleRate'))+
   geom_point(aes(y=nTSGDoubleNormed, colour='tsgDoubleRate'))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 p <- ggplot()+
   geom_smooth(data = df[(df$signature == 'MMR') & (df$isOutlier == 'False'),], aes(x = tmb, y=nOncogene - nOncogeneExp, colour='oncogene_mmr'), method = 'lm', se=FALSE)+
@@ -278,38 +414,6 @@ ggsave('~/Desktop/plot.pdf', plot=p,  width = 5, height = 5, units = c("in"))
 ##
 #
 
-#ONCOGENICITY OF SIGNATURES
-plot_oncogenicity_figure <- function(df, mutType, legend=FALSE){
-
-  
-  barColorPalette = c(
-    "#00DFFF", "#FF0000", "#FF1493", 
-    "#267574","#D3D3D3","#ADFF2F",
-    "#2A52BE","#FFA500", "#FFF600"
-  )
-  p <- ggplot(df[df$mutType == mutType,], aes(x=reorder(Signature_Name, frac), y=frac, fill=colorName))+
-    geom_bar(stat='identity')+
-    theme(axis.text.x = element_text(angle=90))+
-    xlab('Signature Name')+
-    emptyTheme+
-    ylim(0, .11)+
-    ylab(paste('chance of a nonsynonymous\nmutation being', mutType))+
-    scale_fill_manual(values=barColorPalette)
-  if(legend == FALSE){
-    p <- p + theme(legend.position = 'none')
-  }
-  return(p)
-}
-
-df <- read.table('/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/sig_oncogenicity_figure1s?.tsv', ,sep = '\t', header=TRUE)
-
-fullP <- plot_grid(plot_oncogenicity_figure(df, 'truncating'), 
-                   plot_oncogenicity_figure(df, 'oncogenic'),
-                   plot_oncogenicity_figure(df, 'hotspot'),
-                   get_legend(plot_oncogenicity_figure(df, 'hotspot', legend = TRUE)),
-                   ncol=4)
-
-ggsave('~/Desktop/plot.pdf', plot=fullP,  width = 17, height = 4, units = c("in"))
 
 #TEMP
 ##
