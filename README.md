@@ -16,11 +16,21 @@ evolution_of_hypermutation
 |   |   make_figure1_supplementary_figures.ipynb (all code to make figure S1 dataframes)
 |   |   plotFigure1.R (plots all figure1 panels)
 |   |   plotSupplementaryFiguresFig1.R (plots all Supplemental Figure 1 panels)
+|   |
 |   └───FIGURE1_PLOTTING_FILES
+|   |   |
 |   |   └───figurePdfs (PDFs of figures)
-|.  
-|   |   └───plotDataFiles (tsvs used to generate pdf plots
-
+|   |   |   |   figure1.pdf (combined pdf with all figure 1 plots)
+|   |   |   |   figureS1.pdf (combined pdf with all figure 1 supplemental plots)
+|   |   |   |   figure1a.pdf (indidual panel figures)
+|   |   |   |   figureS1a.pdf (individual supplemental figures)
+|   |   |   |   ...
+|   |   |   |
+|   |   └───plotDataFiles (tsvs used to generate pdf plots--note not all figures have individual tsvs)
+|   |   |   |   figure_1b.tsv 
+|   |   |   |   figure_S1a.tsv 
+|   |   |   |   ...
+|   |   |   |
 │   └───figure2 (same structure figure 1)
 │   └───figure3 (same structure figure 1)
 │   └───utilityScripts
