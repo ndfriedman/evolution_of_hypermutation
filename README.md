@@ -4,9 +4,9 @@ This repo provides code and files to reproduce analyses for my paper on the evol
 **Files** This repository contains all ipython, R and python scripts used to generate project plots except where otherwise specified in <code>generate_all_files_and_plots.ipynb</code>.  All files in the /files directory are hosted on google drive at __link___.  Download the directory at this __link__ and drag it to the files directory  <br>
 **Directories** All files 
 ```
-project
+evolution_of_hypermutation
 │   README.md
-│   file001.txt    
-│
+│   fileDirectory.txt (identifiers and paths to all project files)    
+│   
 └───folder1
 ```
