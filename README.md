@@ -4,5 +4,5 @@ This repo provides code and files to reproduce analyses for my paper on the evol
 **Files** This repository contains all ipython, R and python scripts used to generate project plots except where otherwise specified in <code>generate_all_files_and_plots.ipynb</code> <br>
 **Directories** All files  
 +--- Figure1<br>
-|   +--FILES_TO_GENERATE_PLOTS-<br>
+|&nbsp; &nbsp; &nbsp; &nbsp;+--FILES_TO_GENERATE_PLOTS-<br>
 |-<br>
