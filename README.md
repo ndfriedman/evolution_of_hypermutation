@@ -38,10 +38,10 @@ evolution_of_hypermutation
 │   └───utilityScripts (various python scripts imported throughout project or used for standalone file generation)
 │
 └───files
-|   |   |
-|   |   └───infoFiles (files with general reference data: i.e cancer type, gene expression, msi scores)
-|   |   |
-|   |   └───expectedMutationInfo (files specific to analysis modules related to estimating expected mutation burdens)
-|   |   |
-|   |   └───mafs (all maf files--annotated, unannotated, cohort specific, pan cohort)
+|   |
+|   └───infoFiles (files with general reference data: i.e cancer type, gene expression, msi scores)
+|   |
+|   └───expectedMutationInfo (files specific to analysis modules related to estimating expected mutation burdens)
+|   |
+|   └───mafs (all maf files--annotated, unannotated, cohort specific, pan cohort)
 ```
