@@ -197,7 +197,7 @@ ggsave(saveFilePath, plot=p,  width = 4, height = 3.5, units = c("in"))
 ###########
 ######
 #
-#Figure S2 (iii) DNDS significance values across 'related' and 'unrelated genes'
+#Figure S2 (e) DNDS significance values across 'related' and 'unrelated genes'
 
 #df <- read.table('/Users/friedman/Desktop/WORK/dataForLocalPlotting/plotGeneFractions.tsv', sep = '\t', header=TRUE)
 
@@ -232,7 +232,7 @@ ggsave(saveFilePath, plot=p,  width = 4, height = 4, units = c("in"))
 ###########
 ######
 #
-#Figure S2 (iv) Gene mutation enrichment in hypermutated tumors
+#Figure S2 (f) Gene mutation enrichment in hypermutated tumors
 
 plot_figure_s2_iv <- function(df){
   plot_supplementary_enrichment_figure <- function(df, sigType, ratioThreshold=100, fracHyperThreshold=.25){
@@ -273,32 +273,26 @@ ggsave(saveFilePath, plot=p,  width = 15, height = 4, units = c("in"))
 ################
 #######
 #
-#Figure S2 (v) mutation enrichment and pole pentanucleotides
+plot_figure_s2_g <- function(df){
+  p <- ggplot(df, aes(x= deviation, fill=mutationType, color=mutationType))+
+    geom_histogram(color='black')+
+    geom_text_repel(data=df[df$deviation > max(df$deviation) - 5,], 
+                    aes(label=allele, y=0), nudge_y=400, force=20)+
+    theme_classic()+
+    scale_colour_viridis_d(drop=FALSE)+
+    scale_fill_viridis_d(drop=FALSE)+
+    ylab('n distinct observed mutations')+
+    xlab('standard deviations above mean n mutations\nat the same pentanucleotide context')+
+    ggtitle('POLE mutational hotspots')
+  return(p)
+}
 
 
-
-#
-######
-################
-##########################
-#####################################
-##########################
-################
-#######
-#
-#Figure S2 (v) cumulative hotspots explained by related and unrelated mutations
-
-#
-######
-################
-##########################
-#####################################
-##########################
-################
-#######
-#
-#Figure S2 (vi)
-
+#Figure S2 (g) mutation enrichment and pole pentanucleotides
+figureS2gDf <- read.table(paste(plottingDataPath, 'figureS2_g.tsv', sep=''), sep = '\t', header=TRUE)
+p <- plot_figure_s2_g(figureS2gDf) #FYI trying to display the variable p will cause an R viewport error (it saves fine though)
+saveFilePath = paste(plottingFilePath, 'figureS2_g.pdf')
+ggsave(saveFilePath, plot=p,  width = 6, height = 4, units = c("in"))
 
 
 #
@@ -310,7 +304,45 @@ ggsave(saveFilePath, plot=p,  width = 15, height = 4, units = c("in"))
 ################
 #######
 #
-#Figure S2 (vii) Figure 2c style plot for all msi cancer types with substantial number of samples
+#Figure S2 (h) cumulative hotspots explained by related and unrelated mutations
+plot_figure_s2_h <- function(df){
+  plot_prevalence_curve <- function(df, title){
+    p <- ggplot(df, aes(color=class, x=percentile, y=val))+
+      theme_classic()+
+      geom_path()+
+      xlab('nth most recurrent hotspot')+
+      theme(axis.ticks.x = element_blank(), axis.text.x=element_blank())+
+      ylab('percent of all hotspot mutations')+
+      ggtitle(title)
+    return(p)
+  }
+  endoPlot <- plot_prevalence_curve(df[df$cancerType == 'Endometrial_Cancer',], 'Endometrial_Cancer')
+  coloPlot <- plot_prevalence_curve(df[df$cancerType == 'Colorectal_Cancer',], 'Colorectal_Cancer')
+  gliomaPlot <- plot_prevalence_curve(df[df$cancerType == 'Glioma',], 'Glioma')
+  leg <- get_legend(endoPlot)
+  #Remove legends and add a significance asterisk 
+  endoPlot <- endoPlot + theme(legend.position = 'none') + geom_text(aes(x=.5, y=.75), label='*', color='black')
+  coloPlot <- coloPlot + theme(legend.position = 'none') + geom_text(aes(x=.5, y=.75), label='*', color='black')
+  gliomaPlot <- gliomaPlot + theme(legend.position = 'none') + geom_text(aes(x=.5, y=.75), label='ns', color='black')
+  alignedPlot <- plot_grid(endoPlot, coloPlot, gliomaPlot, leg, ncol=4, rel_widths = c(1,1,1,.5))
+  return(alignedPlot)
+}
+
+figureS2hDf <- read.table(paste(plottingDataPath, 'figureS2_h.tsv', sep=''), sep = '\t', header=TRUE)
+p <- plot_figure_s2_h(figureS2hDf)
+saveFilePath = paste(plottingFilePath, 'figureS2_h.pdf')
+ggsave(saveFilePath, plot=p,  width = 10, height = 4, units = c("in"))
+
+#
+######
+################
+##########################
+#####################################
+##########################
+################
+#######
+#
+#Figure S2 (i) Figure 2c style plot for all msi cancer types with substantial number of samples
 
 #NOTE: the 'plot_comp' function is used for both this figure and figure S2_viii
 plot_comp <- function(df, title='MSI', thresh=.2){
@@ -354,7 +386,7 @@ ggsave(saveFilePath, plot=p,  width = 15, height = 10, units = c("in"))
 ################
 #######
 #
-#Figure S2 (viii)
+#Figure S2 (j)
 
 #NOTE: the 'plot_comp' function used for this figure is defined in S2_vii
 
