@@ -14,6 +14,10 @@ library(mclust, quietly=TRUE)
 library(gridBase)
 library(Ckmeans.1d.dp)
 
+#adjust this as needed
+plottingFilePath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure1/FIGURE1_PLOTTING_FILES/figurePdfs/'
+
+#Plots the distributions of TMBs
 plot_distribution <- function(df, binW = 1, title='', hideLegend=TRUE){
   
   emptyTheme <- theme(axis.line = element_blank(),
@@ -49,7 +53,6 @@ plot_distribution <- function(df, binW = 1, title='', hideLegend=TRUE){
   return(plt)
 }
 
-#New method written by Noah Friedman on 11/19
 fit_and_analyze_dist <- function(dataFrame,
                                  quantileBufferSize=.1, #the quantile determines how many cases we throw out from the hypermutant cluster
                                  minimumHypermutantThresh = 20, #this is the number below which we well never consider a case hypermutated
@@ -132,8 +135,8 @@ find_and_save_all_distributions <- function(tmbData, minNSamples=250,
   }
 }
 
-#load the distributions (they may have been changed by my python script/any other steps the user deems necessary)
-load_and_plot_all_distributions <-  function(fileDir = '~/Desktop/mnt/juno/work/taylorlab/friedman/hypermutationAnalysisProj/projectDataAndConfigFiles/hypermutationStatusIds/'){
+#load the distributions 
+load_and_plot_all_distributions <-  function(fileDir = '~/Desktop/hypermutationProjectFinal/files/hypermutationStatusIds/'){
   l <- list()
   i <- 1
   for(file in list.files(fileDir)){
@@ -151,53 +154,48 @@ load_and_plot_all_distributions <-  function(fileDir = '~/Desktop/mnt/juno/work/
   return(l)
 }
 
+
+#RUN THIS CODE TO SET HYPERMUTATION THRESHOLDS
+
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
+
 tmbData <- read.table('~/Desktop/hypermutationProjectFinal/files/infoFiles/mutations_TMB_and_MSI_stats.txt', sep='\t', header=TRUE)
 
 #FIND THE DISTRIBUTIONS AND SAVE THEM IF NEEDED
+#NOTE THIS OVERWRITES HYPERMUTATION STATUS IDs, so make sure you are doing this right as it changes every single figure
 find_and_save_all_distributions(tmbData, minNSamples=100, 
-    writeData=TRUE, writePath ='~/Desktop/hypermutationStatusIds/')
-
+    writeData=TRUE, writePath ='SET_THIS_WHERE YOU WANT TO WRITE IT')
 
 
 #
-##
+###
 ######
-##########
+#############
 ##################
-#MAKE PLOTS
-
-
+##########################
+#################
+############
+#######
+###
+#RUN THIS CODE TO MAKE FIGURE S1A: Distributions of TMB by cancer type
 
 #MAKE THE BIG COMINED PLOT
-listOfPlots <- load_and_plot_all_distributions()
+listOfPlots <- load_and_plot_all_distributions(fileDir = '~/Desktop/hypermutationProjectFinal/files/hypermutationStatusIds/')
 p <- plot_grid(plotlist=listOfPlots)
-plotWithTitleAndCaption <- plot_grid(ggplot()+ggtitle('Hypermutation Classification')+theme(plot.title=element_text(size=50)),
-                                    p, ggplot()+labs(caption='plotAndDefineHypermutationThreshold.R\ngenerate_mut_classification_figure#1a#.ipynb'),
-                                    nrow=3, rel_heights = c(.1,1,.1))
-                                    
-ggsave('~/Desktop/plot.pdf', plot=plotWithTitleAndCaption,  width = 60, height = 20, units = c("in"), limitsize = FALSE)
+plotWithTitleAndCaption <- plot_grid(ggplot()+ggtitle('S1(a)')+theme(plot.title=element_text(size=50)),
+                                    p,
+                                    nrow=2, rel_heights = c(.1,1))
+saveFilePath = paste(plottingFilePath, 'figureS1_a.pdf')
+ggsave(saveFilePath, plot=plotWithTitleAndCaption,  width = 60, height = 20, units = c("in"), limitsize = FALSE)
 
-#make the smaller plot as figure 1a.
 
-endometrialData <- read.table('~/Desktop/mnt/juno/work/taylorlab/friedman/hypermutationAnalysisProj/projectDataAndConfigFiles/hypermutationStatusIds/Endometrial_Cancer.tsv', sep='\t', header=TRUE)
-colorectalData <- read.table('~/Desktop/mnt/juno/work/taylorlab/friedman/hypermutationAnalysisProj/projectDataAndConfigFiles/hypermutationStatusIds/Colorectal_Cancer.tsv', sep='\t', header=TRUE)
-bladderData <- read.table('~/Desktop/mnt/juno/work/taylorlab/friedman/hypermutationAnalysisProj/projectDataAndConfigFiles/hypermutationStatusIds/Bladder_Cancer.tsv', sep='\t', header=TRUE)
-
-pEndo <- plot_distribution(endometrialData, title='Endometrial Cancer')
-pColo <- plot_distribution(colorectalData, title='Colorectal Cancer')
-pBladder <- plot_distribution(bladderData, title='Bladder Cancer')
-legend <- get_legend(plot_distribution(endometrialData, title='endo', hideLegend=FALSE))
-alignedPlot <- plot_grid(pEndo, pColo, pBladder, nrow=3)
-alignedPlotWithLegend <- plot_grid(alignedPlot, legend, ncol=2, rel_widths = c(1,.5))
-
-finalPlot <- plot_grid(alignedPlotWithLegend, ggplot()+labs(caption='plotAndDefineHypermutationThreshold.R\ngenerate_mut_classification_figure#1a#.ipynb'), nrow=2, rel_heights=c(1,.1))
-ggsave('~/Desktop/plot.pdf', plot=finalPlot,  width = 16, height = 12, units = c("in"), limitsize = FALSE)
-
-#
-####
-##########
-################
-##########
-###
-#
 
