@@ -215,41 +215,15 @@ ggsave(saveFilePath,
        plot=p,  width = 3, height = 4, units = c("in"), limitsize = FALSE)
 
 #
-#####
-#################
-##############################
-#################
+###
 ######
-#
-plot_figure_1f <- function(df){
-  p <- ggplot(df)+
-    geom_violin(bw=1, aes(x='TSG', y=mutRateTSG*1e6))+
-    geom_violin(bw = 1, aes(x='neutral', y=mutRateNotEssential*1e6))+
-    geom_violin(bw = 1, aes(x='essential', y=mutRateEssential*1e6))+
-    theme_classic()+
-    stat_summary(aes(x='TSG', y=mutRateTSG*1e6))+
-    stat_summary(aes(x='neutral', y=mutRateNotEssential*1e6))+
-    stat_summary(aes(x='essential', y=mutRateEssential*1e6))+
-    ylab('rate of truncating mutation/MB')+
-    coord_cartesian(ylim=c(0,10))+
-    xlab('gene type')
-  return(p)
-}
-
-figure1fDataFrame <- read.table(paste(plottingDataPath, 'figure_1f.tsv', sep=''), sep = '\t', header=TRUE)
-p <- plot_figure_1f(figure1fDataFrame)
-saveFilePath = paste(plottingFilePath, 'figure1f.pdf')
-ggsave(saveFilePath,
-       plot=p,  width = 3, height = 4, units = c("in"), limitsize = FALSE)
-
-#
-#####
+#############
+##################
+##########################
 #################
-##############################
-#################
-######
-#
-
+############
+#######
+###
 
 #FINAL PLOT
 
