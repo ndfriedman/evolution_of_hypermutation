@@ -68,6 +68,7 @@ def summarize_quad_nuc_mut_attribution(signatureDecomposition, spectrumDf):
 		spectrumDfCase = spectrumDf[spectrumDf['signature'].isin(signaturesPresentInCase)]
 		d['Sample Name'] = sampleId
 		d['signaturesPresentInCase'] = '|'.join(signaturesPresentInCase)
+		quadNucColumns = set(spectrumDf.columns.values) - set(['signature']) 
 		for quadnuc in quadNucColumns:
 			sigs = '|'.join(set(spectrumDfCase[quadnuc]) - set([''])) #join all signatures present with a pipe and get rid of all empty strings
 			d[quadnuc] = sigs
