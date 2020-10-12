@@ -36,11 +36,9 @@ def get_gene_size_info():
 
 #pathways taken from https://www.cell.com/cell/fulltext/S0092-8674(18)30359-3?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867418303593%3Fshowall%3Dtrue
 #francisco cell paper
-def get_pathway_genes(pathway):
-	pathwayFileMap = {'WNT': '~/Desktop/hypermutationProjectFinal/files/infoFiles/wntBetaCateninPathwayData.csv',
-					  'PI3K': '~/Desktop/hypermutationProjectFinal/files/infoFiles/PI3KPathwayData.csv'}
-	df = pd.read_csv(pathwayFileMap[pathway])
-	return set(df['Gene'])
+def get_pathway_genes(pathwayFilePath = 'files/infoFiles/cancerPathways.csv'):
+	df = pd.read_csv(pathwayFilePath)
+	return df
 
 
 def set_up_dep_map_data(depMapPath = '~/Desktop/hypermutationProjectFinal/files/infoFiles/projectAchillesDepMapData.csv', cancerTypeLines = [], loadedDf = pd.DataFrame([{}])):
@@ -305,7 +303,6 @@ def get_hypermutator_pairs_samples():
 
 def get_tcga_whitelist():
 	return 0
-
 
 #GET RELATED GENES
 def get_related_genes_by_cancer_type(
