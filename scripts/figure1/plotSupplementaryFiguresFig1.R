@@ -103,6 +103,98 @@ ggsave(saveFilePath,
 ############
 #######
 ###
+#Figure S1 (z1) observed vs expected by tmb tier
+#TODO assign this to a figure
+plot_figure_s1_z1 <- function(df){
+  
+  plot_fig <- function(df, title){
+    p <- ggplot(df, aes(x=nmut))+
+      geom_smooth(aes(y = expectedOncogenicSNP, colour = 'Expected'))+
+      geom_smooth(aes(y = obsOncogenicSNP, colour = 'Observed'))+
+      scale_colour_manual(values=c('gray', 'black'))+
+      ylab('Putative SNP drivers')+
+      xlab('n SNV in IMPACT-341 genes')+
+      theme_classic()+
+      ggtitle(title)+
+      coord_cartesian(xlim=c(0,300), ylim=c(0,50))
+    return(p)
+  }
+  
+  l <- list()
+  for(sig in unique(df$dominantSignature)){
+    dfHere <- df[df$dominantSignature == sig,]
+    l[[sig]] <- plot_fig(dfHere, sig)
+  }
+  gridP <- plot_grid(plotlist=l)
+  finalP <- plot_grid(ggplot()+ggtitle('S1(z1.)'), gridP, nrow=2, rel_heights = c(.1,1))
+  return(finalP)
+}
+
+
+#this figure is made using the Figure 1d data fram
+figureS1z1Df <- read.table(paste(plottingDataPath, 'figure_1d.tsv', sep=''), sep='\t', header=TRUE)
+pltS1z1 <- plot_figure_s1_z1(figureS1z1Df[figureS1z1Df$dominantSignature != 'other',])
+saveFilePath = paste(plottingFilePath, 'figureS1_z1.pdf')
+ggsave(saveFilePath,
+       plot=pltS1z1,  width = 10, height = 10)
+
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
+
+plot_figure_s1_z2 <- function(df){
+  
+  plot_fig <- function(df, sig){
+    p <- ggplot(df, aes(x=nIndels/30))+
+      geom_smooth(aes(y=OncogeneObs, linetype='Observed',  color='oncogene'), span=1)+
+      geom_smooth(aes(y=OncogeneExp, linetype='Expected',  color='oncogene'), span=1)+
+      geom_smooth(aes(y=TSGObs, linetype='Observed',  color='TSG'), span=1)+
+      geom_smooth(aes(y=TSGExp, linetype='Expected', color='TSG'), span=1)+
+      scale_linetype_manual(values=c("dotted", "solid"))+
+      theme_classic()+
+      ylab('N indels ')+
+      xlab('N indels/MB')+
+      coord_cartesian(xlim = c(0,40), ylim=c(0,40))+
+      ggtitle(sig)
+  }
+  
+  l <- list()
+  for(sig in unique(df$dominantSignature)){
+    dfHere <- df[df$dominantSignature == sig,]
+    l[[sig]] <- plot_fig(dfHere, sig)
+  }
+  gridP <- plot_grid(plotlist=l)
+  finalP <- plot_grid(ggplot()+ggtitle('S1(z2.)'), gridP, nrow=2, rel_heights = c(.1,1))
+  
+  ggtitle('All Exomes')
+  return(finalP)
+}
+
+#uses the figure 1e data frame
+figureS1z2Df <- read.table(paste(plottingDataPath, 'figure_1e.tsv', sep=''), sep='\t', header=TRUE)
+#REMOVE one weird apobec case
+pltS1z2 <- plot_figure_s1_z2(figureS1z2Df[figureS1z2Df$Tumor_Sample_Barcode != 'TCGA-D8-A27V-01A-12D-A17D-09',])
+saveFilePath = paste(plottingFilePath, 'figureS1_z2.pdf')
+ggsave(saveFilePath,
+       plot=pltS1z2,  width = 10, height = 10)
+
+#
+###
+######
+#############
+##################
+##########################
+#################
+############
+#######
+###
 #Figure S1 (d) Distributions of observed and expected mutations in TCGA
 
 plot_figure_s1_d <- function(df){
@@ -378,7 +470,7 @@ figureS1jDf <- read.table(paste(plottingDataPath, 'figureS1_j.tsv', sep=''), sep
 pS1j <- make_figure_s1_j(figureS1jDf)
 saveFilePath = paste(plottingFilePath, 'figureS1_j.pdf')
 ggsave(saveFilePath,
-       plot=p,  width = 4, height = 4)
+       plot=pS1j,  width = 4, height = 4)
 
 
 
