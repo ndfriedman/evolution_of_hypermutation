@@ -9,6 +9,7 @@ library(plyr)
 library(data.table); setDTthreads(6)
 library(stringr)
 library(ggrepel)
+library(ggpubr)
 
 #adjust this as needed
 plottingDataPath = '/Users/friedman/Desktop/hypermutationProjectFinal/scripts/figure2/FIGURE2_PLOTTING_FILES/plotDataFiles/'
@@ -23,7 +24,8 @@ plot_figure_2a <- function(df){
     theme(axis.text.x = element_text(angle=90))+
     scale_fill_viridis_d()+
     scale_x_discrete(limits = rev(levels(df$burdenType)))+
-    xlab('tumor type')
+    xlab('tumor type')+
+    ggtitle('2a.')
   return(p)
 }
 
@@ -43,22 +45,30 @@ ggsave(saveFilePath, plot=plt2a,  width = 3, height = 4)
 #
 #FIGURE 2B
 
+#Todo add a per/Mb value here
+
 plot_figure_2b <- function(df){
+  pTmb <- ggplot(df, aes(x=TMB))+
+    geom_histogram()+emptyTheme+ylab('n cases')
   p <- ggplot()+
-    geom_smooth(data = df[df$hypermutationStatus == 'hypermutated',], aes(x=TMB, y=fracDriverRelated, colour='cancer type related genes'), method='loess', span=1)+
-    geom_smooth(data = df[df$hypermutationStatus == 'hypermutated',], aes(x=TMB, y=fracDriverUnrelated, colour='cancer type unrelated genes'), method='loess', span=1)+
-    ylab('N putative drivers/N all mutations')+
+    geom_smooth(data = df, aes(x=TMB, y=(1e6*nRelatedDriver)/relatedGeneSize, colour='cancer type related genes'), method='loess', span=1)+
+    geom_smooth(data = df, aes(x=TMB, y=(1e6*nUnrelatedDrivers)/(1.3e6-relatedGeneSize), colour='cancer type unrelated genes'), method='loess', span=1)+
+    ylab('Mutations per MB of gene content')+
     scale_color_manual(values=c('Purple', 'Orange'))+
-    ylim(0,1)+
     theme_classic()+
-    ggtitle('All genes')
-  return(p)
+    xlab('case-TMB')+
+    ggtitle('2b.')
+  leg <- get_legend(p)
+  p <- p + theme(legend.position = 'none')
+  alignedPlot <- plot_grid(p, pTmb, nrow=2, rel_heights=c(1,.25))
+  alignedPlotWithLegend <- plot_grid(alignedPlot, leg, ncol=2, rel_widths = c(1,.5))
+  return(alignedPlotWithLegend)
 }
 
 figure2bDataFrame <- read.table(paste(plottingDataPath, 'figure_2b.tsv', sep=''), sep='\t', header=TRUE)
 plt2b <- plot_figure_2b(figure2bDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure2b.pdf')
-ggsave(saveFilePath, plot=plt2b,  width = 5, height = 4)
+ggsave(saveFilePath, plot=plt2b,  width = 4.5, height = 4)
 
 #
 #######
@@ -72,29 +82,53 @@ ggsave(saveFilePath, plot=plt2b,  width = 5, height = 4)
 #FIGURE 2C
 
 plot_figure_2c <- function(df){
-  p <- ggplot(df, aes(x=perCase_c1, y=perCase_c2, color=pathway))+
-    geom_point(alpha=0.5)+
-    geom_point(data=df[df$qVal < .05,], pch=21, colour='black')+ #outlines
-    geom_text_repel(data=df[(df$perCase_c1 > .2) | (df$perCase_c2 > .2), ], aes(label=Allele), size=2)+
-    xlim(0, .75)+
-    ylim(0, .75)+
+  
+  p1 <- ggplot(df, aes(x=mutBurdenPathway, y=nTruncTsg/nTotal, color=cancerType))+
+    geom_boxplot()+
     theme_classic()+
-    geom_segment(aes(x=0,y=0,xend=0.5, yend=0.5), colour='black', linetype='dashed')+
-    scale_color_manual(values = c('gray', 'blue', 'orange'))+
-    ylab('Fraction of Colorectal cases mutated')+
-    xlab('Fraction of Endometrial cases mutated')+
-    ggtitle('MSI Indels')
-  return(p)
+    theme(axis.text.x = element_text(angle=90))+
+    geom_text_repel(data=figure2cDataFrame[figure2cDataFrame$nTruncTsg/figure2cDataFrame$nTotal > .175,], aes(label=gene))+
+    ggtitle('TSGs')+
+    xlab('mutation burden & pathway')+
+    ylab('Fraction cases with truncating mutations')+
+    ylim(0,.75)
+  
+  leg <- get_legend(p1)
+  p1 <- p1 + theme(legend.position = 'none')
+  
+  p2 <- ggplot(df, aes(x=mutBurdenPathway, y=nTruncOncogene/nTotal, color=cancerType))+
+    geom_boxplot()+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle=90))+
+    geom_text_repel(data=figure2cDataFrame[figure2cDataFrame$nTruncOncogene/figure2cDataFrame$nTotal > .2,], aes(label=gene))+
+    ggtitle('Oncogenes')+
+    xlab('mutation burden & pathway')+
+    ylab('Fraction cases with truncating mutations')+
+    ylim(0, .75)+
+    theme(legend.position = 'none')
+  
+  p3 <- ggplot(df, aes(x=mutBurdenPathway, y=nVus/nTotal, color=cancerType))+
+    geom_boxplot()+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle=90))+
+    geom_text_repel(data=figure2cDataFrame[figure2cDataFrame$nVus/figure2cDataFrame$nTotal > .2,], aes(label=gene))+
+    ggtitle('VUS mutations')+
+    xlab('mutation burden & pathway')+
+    ylab('Fraction cases with VUS-missense mutations')+
+    ylim(0,.75)+ 
+    theme(legend.position = 'none')
+  
+  alignedPlot <- plot_grid(p1, p2, p3, leg, ncol=4, rel_widths = c(1,1,1,.3))
+  plotWithTitle <- plot_grid( ggplot()+ggtitle('2c.'), alignedPlot, nrow=2, rel_heights = c(.2,1))
+  return(plotWithTitle)
 }
 
 figure2cDataFrame <- read.table(paste(plottingDataPath, 'figure_2c.tsv', sep=''), sep='\t', header=TRUE)
-plt2c <- plot_figure_2c(figure2cDataFrame[(figure2cDataFrame$c1_cancerType == 'Endometrial Cancer') & (figure2cDataFrame$c2_cancerType == 'Colorectal Cancer'), ])
+plt2c <- plot_figure_2c(figure2cDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure2c.pdf')
-ggsave(saveFilePath, plot=plt2c,  width = 5, height = 5)
+ggsave(saveFilePath, plot=plt2c,  width = 15, height = 5)
 
-#Correlation scores
-cor(df[df$GeneType == 'oncogene',]$perCaseColorectal, df[df$GeneType == 'oncogene',]$perCaseEndometrial, method='pearson')
-cor(df[df$GeneType == 'tsg',]$perCaseColorectal, df[df$GeneType == 'tsg',]$perCaseEndometrial, method='pearson')
+
 
 #
 ######
@@ -105,9 +139,52 @@ cor(df[df$GeneType == 'tsg',]$perCaseColorectal, df[df$GeneType == 'tsg',]$perCa
 ###############
 ######
 #
-#FIGURE 2D
 
-make_figure_2d <- function(df){
+#FIGURE 2D Summarizing composite mutations in hypermutated tumors
+
+plot_figure_2d <- function(df){
+  ggplot()+
+    stat_summary(data=df[df$geneType == 'oncogene',], aes(x='1', y=isComposite))+
+    stat_summary(data=df[df$geneType == 'tsg_missense',], aes(x='2', y=isComposite))+
+    stat_summary(data=df[df$geneType == 'tsg_truncating',], aes(x='3', y=isComposite))+
+    stat_summary(data=df[df$hypermutationInduced == 'Almost certain',], aes(x='4', y=isComposite))+
+    stat_summary(data=df[df$hypermutationInduced == 'Unlikely',], aes(x='5', y=isComposite))+
+    
+    stat_summary(data=df[(df$related == 'related') & (df$geneType != 'oncogene'),], aes(x='6', y=isComposite))+
+    stat_summary(data=df[(df$related == 'related') & (df$geneType == 'oncogene'),], aes(x='7', y=isComposite))+
+    stat_summary(data=df[(df$related == 'not-related') & (df$geneType != 'oncogene'),], aes(x='8', y=isComposite))+
+    stat_summary(data=df[(df$related == 'not-related') & (df$geneType == 'oncogene'),], aes(x='9', y=isComposite))+
+    theme_classic()+
+    scale_x_discrete(labels=c('1' = "oncogene", "2" = "TSG missense",
+                              "3" = "TSG truncating", "4" = 'hypermutation induced', 
+                              '5' = 'not hypermutation induced', '6' = 'related tsg', '7' = 'related oncogene',
+                              '8' = 'unrelated tsg', '9' = 'unrelated oncogene'))+
+    
+    theme(axis.text.x = element_text(angle=90))+
+    coord_cartesian(ylim= c(0,.5))+
+    ylab('n times driver observed in composite/\nn times driver observed overall')+
+    xlab('mutation type')+
+    ggtitle('2d.')
+}
+
+figure2dDataFrame <- read.table(paste(plottingDataPath, 'figure_2d.tsv', sep=''), sep='\t', header=TRUE)
+plt2d <- plot_figure_2d(figure2dDataFrame)
+saveFilePath = paste(plottingFilePath, 'figure2d.pdf')
+ggsave(saveFilePath, plot=plt2d,  width = 4, height = 4.5)
+
+#
+######
+###############
+########################
+##################################
+########################
+###############
+######
+#
+
+#FIGURE 2E Phasing
+
+make_figure_2e <- function(df){
   p <- ggplot(df, aes(x=factor(label, levels=c('B2M', 'PTEN', 'TP53', 'ARID1A', 'APC',
                                                'related_tsg', 'other_tsg', 'PIK3CA', 'TERT', 'related_oncogene', 'other_oncogene', '1 or 2 VUS', '1 or 2 silent')),
                       y=isTrans))+
@@ -115,44 +192,13 @@ make_figure_2d <- function(df){
     theme_classic()+
     theme(axis.text.x = element_text(angle=90))+
     xlab('Gene Type')+
-    ylab('Fraction phasable mutations in trans')
-  return(p)
-}
-
-figure2dDataFrame <- read.table(paste(plottingDataPath, 'figure_2d.tsv', sep=''), sep='\t', header=TRUE)
-plt2d <- make_figure_2d(figure2dDataFrame)
-saveFilePath = paste(plottingFilePath, 'figure2d.pdf')
-ggsave(saveFilePath, plot=plt2d,  width = 5, height = 5)
-
-#
-######
-###############
-########################
-##################################
-########################
-###############
-######
-#
-#FIGURE 2E
-
-plot_figure_2e <- function(df){
-  
-  fun.1 <- function(x) x^2 
-  
-  p <- ggplot(data = data.frame(x = 0), mapping = aes(x = x))+
-    geom_point(data=df, aes(x=nAllele/nGene, y=nDoubleHit/nBiallelicLoss, size=nDoubleHit, colour=geneType))+
-    geom_text_repel(data=df[df$nDoubleHit >= 4,], aes(x=nAllele/nGene, y=nDoubleHit/nBiallelicLoss, label=allele), force=5)+
-    xlab('Fraction of all drivers in gene\ncaused by double hit allele')+
-    ylab('Fraction of all biallelic inactivation of gene\nattributable to double hit')+
-    ylim(0,1)+
-    xlim(0,1)+
-    stat_function(fun = fun.1, linetype='dashed')+
-    theme_classic()
+    ylab('Fraction phasable mutations in trans')+
+    ggtitle('2e.')
   return(p)
 }
 
 figure2eDataFrame <- read.table(paste(plottingDataPath, 'figure_2e.tsv', sep=''), sep='\t', header=TRUE)
-plt2e <- plot_figure_2e(figure2eDataFrame)
+plt2e <- make_figure_2e(figure2eDataFrame)
 saveFilePath = paste(plottingFilePath, 'figure2e.pdf')
 ggsave(saveFilePath, plot=plt2e,  width = 5, height = 5)
 
@@ -165,47 +211,4 @@ ggsave(saveFilePath, plot=plt2e,  width = 5, height = 5)
 #################
 ######
 #
-#FINAL PLOT
-
-#First pad plots
-
-#2a
-RightPadRatio <- 1
-LowerPadRatio <- 0
-padded2a <- plot_grid(plot_grid(plt2a, ggplot(), ncol=2, rel_widths = c(1, RightPadRatio)),
-                      ggplot(), nrow=2, rel_heights = c(1, LowerPadRatio))
-#2b
-f1RightPadRatio <- 0
-f1LowerPadRatio <- .25
-padded2b <- plot_grid(plot_grid(plt2b, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
-                      ggplot(), nrow=2, rel_heights = c(1, f1LowerPadRatio))
-
-#2c
-f1RightPadRatio <- 0
-f1LowerPadRatio <- 0
-padded2c <- plot_grid(plot_grid(plt2c, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
-                      ggplot(), nrow=2, rel_heights = c(1, f1LowerPadRatio))
-
-#2d
-f1RightPadRatio <- 0
-f1LowerPadRatio <- 0
-padded2d <- plot_grid(plot_grid(plt2d, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
-                      ggplot(), nrow=2, rel_heights = c(1, f1LowerPadRatio))
-
-#2e
-f1RightPadRatio <- 0
-f1LowerPadRatio <- 0
-padded2e <- plot_grid(plot_grid(plt2e, ggplot(), ncol=2, rel_widths = c(1, f1RightPadRatio)),
-                      ggplot(), nrow=2, rel_heights = c(1, f1LowerPadRatio))
-
-
-combinedPdfPlot <- plot_grid(padded2a, padded2b, 
-                             padded2c, padded2d, padded2e,
-                             ggplot(), ggplot(), ggplot(), ggplot(), #include extra plots for padding purposes
-                             nrow=3, ncol=3)
-saveFilePath = paste(plottingFilePath, 'figure2.pdf')
-ggsave(saveFilePath,
-       plot=combinedPdfPlot,  width = 15, height = 15, units = c("in"), limitsize = FALSE)
-
-
 
