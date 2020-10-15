@@ -30,12 +30,22 @@ TCGA_MSI_SCORES	files/infoFiles/tcgaMsiScores.txt
 
 NUCLEOSOME_DYAD_POSITIONS	files/infoFiles/dyads_genic.bed.txt
 
+GTEX_DATA	files/infoFiles/GTEX_TPM_DATA.gct
+
+REPLICATION_TIMING_DATA	files/infoFiles/replication_timing.csv
+
+TABLE_5	tables/table5.tsv
+
+CANCER_PATHWAY_DATA	files/infoFiles/cancerPathways.csv
+
 
 #-------------EXPECTATION
 
 ALL_POSSIBLE_MUTATION_SUMMARY	files/expectedMutationInfo/allPossibleIMPACTMutationsSummary.tsv
 
 EXPECTED_MUTATION_INFO_BY_GENE	files/expectedMutationInfo/allHypermutatorsExpectedGeneMutInfo.tsv
+
+TCGA_EXPECTED_MUTATION_INFO	files/expectedMutationInfo/tcgaExpectedMutationInfo.tsv
 
 
 ###########--------------SIGNATURES
@@ -76,6 +86,8 @@ MAF_WITH_MUTATION_ATTRIBUTION	files/mafs/mafWithMutationAttribution.tsv
 HYPERMUTANT_MAF_WITH_TIMING_INFORMATION	files/mafs/hypermutantTimingMaf.maf
 
 PENTANUCLEOTIDE_CONTEXT_ANNOTATED_MAF	files/mafs/poleCaseMafWithPentanucleotideContext.maf
+
+BRANCH_ANNOTATED_MAF	files/mafs/hypermutantMultipleSamplesLabeledByBranch.tsv
 
 
 
