@@ -176,7 +176,7 @@ figure3z3DataFrame <- read.table(paste(plottingDataPath, 'figure_3z3.tsv', sep='
 plt3z3 <- plot_figure_3z3(figure3z3DataFrame)
 saveFilePath = paste(plottingFilePath, 'figure3z3.pdf')
 ggsave(saveFilePath,
-       plot=plt3z3,  width = 5, height = 10, units = c("in"), limitsize = FALSE)
+       plot=plt3z3,  width = 5, height = 5, units = c("in"), limitsize = FALSE)
 
 
 
