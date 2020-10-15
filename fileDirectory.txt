@@ -34,7 +34,7 @@ GTEX_DATA	files/infoFiles/GTEX_TPM_DATA.gct
 
 REPLICATION_TIMING_DATA	files/infoFiles/replication_timing.csv
 
-TABLE_5	tables/table5.tsv
+TABLE_5	files/infoFiles/dndsData.tsv
 
 CANCER_PATHWAY_DATA	files/infoFiles/cancerPathways.csv
 
