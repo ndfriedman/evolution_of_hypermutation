@@ -108,6 +108,8 @@ ggsave(saveFilePath,
 plot_figure_s1_z1 <- function(df){
   
   plot_fig <- function(df, title){
+    pTmb <- ggplot(df, aes(x=nmut))+
+      geom_histogram()+emptyTheme+ylab('n cases')+xlim(0,300)
     p <- ggplot(df, aes(x=nmut))+
       geom_smooth(aes(y = expectedOncogenicSNP, colour = 'Expected'))+
       geom_smooth(aes(y = obsOncogenicSNP, colour = 'Observed'))+
@@ -117,7 +119,11 @@ plot_figure_s1_z1 <- function(df){
       theme_classic()+
       ggtitle(title)+
       coord_cartesian(xlim=c(0,300), ylim=c(0,50))
-    return(p)
+    leg <- get_legend(p)
+    p <- p + theme(legend.position = 'none')
+    alignedPlot <- plot_grid(p, pTmb, nrow=2, rel_heights=c(1,.25))
+    alignedPlotWithLegend <- plot_grid(alignedPlot, leg, ncol=2, rel_widths = c(1,.5))
+    return(alignedPlotWithLegend)
   }
   
   l <- list()
@@ -153,23 +159,27 @@ plot_figure_s1_z2 <- function(df){
   
   plot_fig <- function(df, sig){
     p <- ggplot(df, aes(x=nIndels/30))+
-      geom_smooth(aes(y=OncogeneObs, linetype='Observed',  color='oncogene'), span=1)+
-      geom_smooth(aes(y=OncogeneExp, linetype='Expected',  color='oncogene'), span=1)+
-      geom_smooth(aes(y=TSGObs, linetype='Observed',  color='TSG'), span=1)+
-      geom_smooth(aes(y=TSGExp, linetype='Expected', color='TSG'), span=1)+
-      scale_linetype_manual(values=c("dotted", "solid"))+
+      stat_summary_bin(bins=20, aes(x=nIndels/30, y=(OncogeneObs/.782), colour='Oncogene'), alpha=0.5)+
+      stat_summary_bin(bins=20, aes(x=nIndels/30, y=(TSGObs/.501), colour='TSG'), alpha=0.5)+
+      geom_segment(data=df[(df$dominantSignature == 'MMR'),], aes(x=max(df$TSGObs/.501), y=max(df$TSGObs/.501), yend=0, xend=0), linetype='dashed')+
       theme_classic()+
-      ylab('N indels ')+
-      xlab('N indels/MB')+
-      coord_cartesian(xlim = c(0,40), ylim=c(0,40))+
-      ggtitle(sig)
+      ylab('Observed Indels')+
+      xlab('Expected Indels')+
+      coord_fixed(xlim=c(0, max(df$TSGObs/2)))+
+      theme(axis.text.x = element_text(angle=90))+
+      ggtitle(sig)+
+      scale_y_continuous(breaks = c(-50, 0, 30, 60), labels=c("n cases=50", "0", "30", "60"))
   }
   
   l <- list()
   for(sig in unique(df$dominantSignature)){
     dfHere <- df[df$dominantSignature == sig,]
-    l[[sig]] <- plot_fig(dfHere, sig)
+    fig <- plot_fig(dfHere, sig)
+    leg <- get_legend(fig)
+    fig <- fig + theme(legend.position = 'none')
+    l[[sig]] <- fig
   }
+  l[['legend']] <- leg
   gridP <- plot_grid(plotlist=l)
   finalP <- plot_grid(ggplot()+ggtitle('S1(z2.)'), gridP, nrow=2, rel_heights = c(.1,1))
   
