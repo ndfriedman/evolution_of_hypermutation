@@ -108,14 +108,14 @@ ggsave(saveFilePath,
 
 
 #P values: (change to $nHotspots if desired)
-pEndometrial <- t.test(figure1dDataFrame[figure1dDataFrame$cohort == 'hyper_Endometrial',]$nOncMuts,
-       figure1dDataFrame[figure1dDataFrame$cohort == 'normal_Endometrial',]$nOncMuts)$p.value
-pColorectal <- t.test(figure1dDataFrame[figure1dDataFrame$cohort == 'hyper_Colorectal',]$nOncMuts,
-                       figure1dDataFrame[figure1dDataFrame$cohort == 'normal_Colorectal',]$nOncMuts)$p.value
-pGlioma <- t.test(figure1dDataFrame[figure1dDataFrame$cohort == 'hyper_Glioma',]$nOncMuts,
-                       figure1dDataFrame[figure1dDataFrame$cohort == 'normal_Glioma',]$nOncMuts)$p.value
-pOther <- t.test(figure1dDataFrame[figure1dDataFrame$cohort == 'hyper_Other',]$nOncMuts,
-                       figure1dDataFrame[figure1dDataFrame$cohort == 'normal_Other',]$nOncMuts)$p.value
+pEndometrial <- t.test(figure1cDataFrame[figure1cDataFrame$cohort == 'hyper_Endometrial',]$nOncMuts,
+                       figure1cDataFrame[figure1cDataFrame$cohort == 'normal_Endometrial',]$nOncMuts)$p.value
+pColorectal <- t.test(figure1cDataFrame[figure1cDataFrame$cohort == 'hyper_Colorectal',]$nOncMuts,
+                      figure1cDataFrame[figure1cDataFrame$cohort == 'normal_Colorectal',]$nOncMuts)$p.value
+pGlioma <- t.test(figure1cDataFrame[figure1cDataFrame$cohort == 'hyper_Glioma',]$nOncMuts,
+                  figure1cDataFrame[figure1cDataFrame$cohort == 'normal_Glioma',]$nOncMuts)$p.value
+pOther <- t.test(figure1cDataFrame[figure1cDataFrame$cohort == 'hyper_Other',]$nOncMuts,
+                 figure1cDataFrame[figure1cDataFrame$cohort == 'normal_Other',]$nOncMuts)$p.value
 print(paste('p values: ', 'endometrial:', pEndometrial, 'colorectal:', pColorectal, 'glioma:', pGlioma, 'other:', pOther))
 
 #
@@ -129,16 +129,19 @@ print(paste('p values: ', 'endometrial:', pEndometrial, 'colorectal:', pColorect
 #plot figure 1d
 
 plot_figure_1d <- function(df){
-  pTmb <- ggplot(df, aes(x=nmut))+
+  pTmb <- ggplot(df, aes(x=expectedOncogenicSNP))+
     geom_histogram()+emptyTheme+ylab('n cases')
-  p <- ggplot(df, aes(x=nmut))+
-    geom_smooth(aes(y = expectedOncogenicSNP, colour = 'Expected'))+
-    geom_smooth(aes(y = obsOncogenicSNP, colour = 'Observed'))+
-    scale_colour_manual(values=c('gray', 'black'))+
-    ylab('Putative SNP drivers')+
-    xlab('nmut in IMPACT-341 genes')+
+  p <- ggplot(df)+
+    stat_summary_bin(bins=10, aes(x=expectedOncogenicSNP, y = obsOncogenicSNP, colour = 'All SNV drivers'))+
+    stat_summary_bin(bins=10, aes(x=expectedTruncatingOncogene, y = obsStopGainOncogene, colour = 'Stop-gain oncogene'))+
+    stat_summary_bin(bins=10, aes(x=expectedTruncatingTSG, y = obsStopGainTSG, colour = 'Stop-gain TSG'))+
+    stat_summary_bin(bins=10, aes(x=expectedHotspot, y = obsHotspot, colour = 'Hotspot drivers'))+
+    geom_segment(aes(x=30, y=30, yend=0, xend=0), linetype='dashed')+
+    xlab('Expected')+
+    ylab('Observed')+
     theme_classic()+
-    ggtitle('1d.')
+    ggtitle('1d.')+
+    coord_fixed()
   leg <- get_legend(p)
   p <- p + theme(legend.position = 'none')
   alignedPlot <- plot_grid(p, pTmb, nrow=2, rel_heights=c(1,.25))
@@ -164,33 +167,35 @@ ggsave(saveFilePath,
 #note this omits some outliers
 plot_figure_1e <- function(df){
   pTmb <- ggplot(df, aes(x=nIndels/30))+
-    geom_histogram()+emptyTheme+ylab('n cases')+xlab('Indels/MB')+coord_cartesian(xlim = c(0,40))
-  p <- ggplot(df[(df$dominantSignature == 'MMR'),], aes(x=nIndels/30))+
-    geom_smooth(aes(y=OncogeneExp, linetype='expected', colour='Oncogene'), span=1)+
-    geom_smooth(aes(y=OncogeneObs, linetype='observed', colour='Oncogene'), span=1)+
-    geom_smooth(aes(y=TSGExp, linetype='expected', colour='TSG'), span=1)+
-    geom_smooth(aes(y=TSGObs, linetype='observed', colour='TSG'), span=1)+
-    scale_linetype_manual(values=c("dotted", "solid"))+
-    scale_color_manual(values=c('#CB9D06', '#4682b4'))+
-    ylab('N indels')+
+    geom_histogram()+emptyTheme+ylab('n cases')+xlab('Indels/MB')+
+    xlim(0,50)
+    #scale_x_log10()
+  p <- ggplot()+
+    
+    stat_summary_bin(data=df[(df$dominantSignature == 'MMR'),], bins=20, aes(x=nIndels/30, y=(OncogeneObs/.782), colour='Oncogene_obs'), alpha=0.5)+
+    stat_summary_bin(data=df[(df$dominantSignature == 'MMR'),], bins=20, aes(x=nIndels/30, y=(TSGObs/.501), colour='TSG_obs'), alpha=0.5)+
+    geom_segment(data=df[(df$dominantSignature == 'MMR'),], aes(x=50, y=50, yend=0, xend=0), linetype='dashed')+
+    geom_histogram(data=df[(df$dominantSignature == 'MMR'),], aes(x=nIndels/30, y=-..count..))+
+    coord_fixed()+
+    ylab('Indels/MB')+
     theme_classic()+
-    xlab('Indels/MB')+
+    xlab('Indels/MB neutral genes')+
+    xlim(0,50)+
     ggtitle('1e')+
-    coord_cartesian(xlim = c(0,40), ylim=c(0,40))
+    scale_y_continuous(breaks = c(-50, 0, 30, 60), labels=c("n cases=50", "0", "30", "60"))
   leg <- get_legend(p)
   p <- p + theme(legend.position = 'none')
-  alignedPlot <- plot_grid(p, pTmb, nrow=2, rel_heights=c(1,.25))
+  alignedPlot <- p
   alignedPlotWithLegend <- plot_grid(alignedPlot, leg, ncol=2, rel_widths = c(1,.5))
   return(alignedPlotWithLegend)
 }
 
 #plot figure 1e
 figure1eDataFrame <- read.table(paste(plottingDataPath, 'figure_1e.tsv', sep=''), sep = '\t', header=TRUE)
-#We remove the top decile of most hypermutated 
 plt1e <- plot_figure_1e(figure1eDataFrame[figure1eDataFrame$dominantSignature == 'MMR',])
 saveFilePath = paste(plottingFilePath, 'figure1e.pdf')
 ggsave(saveFilePath,
-       plot=plt1e,  width = 3, height = 4, units = c("in"), limitsize = FALSE)
+       plot=plt1e,  width = 5, height = 4, units = c("in"), limitsize = FALSE)
 
 #
 ###
